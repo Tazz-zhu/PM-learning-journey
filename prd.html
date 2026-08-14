@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD v2：AI半导体竞品营销情报Agent — 闭环架构版</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f0f4f8;--bg2:#fff;--ink:#1a202c;--muted:#64748b;--rule:#e2e8f0;
+  --accent:#0f4c75;--accent2:#00b4d8;--accent-light:#e0f7fa;
+  --danger:#e53e3e;--warn:#d69e2e;--success:#2f855a;
+  --proto-bg:#f7fafc;--proto-border:#cbd5e0;
+  --conf-high:#c6f6d5;--conf-high-text:#22543d;
+  --conf-mid:#fefcbf;--conf-mid-text:#744210;
+  --conf-low:#fed7d7;--conf-low-text:#742a2a;
+  --conf-none:#e2e8f0;--conf-none-text:#4a5568;
+}
+body{font-family:'Noto Sans SC','Inter',-apple-system,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.75}
+code,mono{font-family:'JetBrains Mono',monospace;font-size:.88em}
+
+/* Layout */
+.container{max-width:960px;margin:0 auto;padding:2rem 1.5rem 5rem}
+
+/* Cover */
+.cover{text-align:center;padding:3rem 0 2rem;border-bottom:3px solid var(--accent);margin-bottom:2.5rem}
+.cover .badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;background:var(--accent-light);padding:4px 14px;border-radius:999px;margin-bottom:1rem}
+.cover h1{font-family:'Inter','Noto Sans SC',sans-serif;font-size:1.8rem;font-weight:700;line-height:1.35;margin-bottom:.6rem}
+.cover .sub{font-size:.95rem;color:var(--muted);max-width:600px;margin:0 auto}
+.cover .meta{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted);margin-top:1.2rem;display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap}
+
+/* Headings */
+h2{font-size:1.35rem;font-weight:700;margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent);display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+h2 .num{font-family:'JetBrains Mono',monospace;font-size:.7rem;background:var(--accent);color:#fff;padding:2px 8px;border-radius:4px}
+h3{font-size:1.05rem;font-weight:600;margin:1.75rem 0 .75rem;color:var(--accent)}
+h4{font-size:.95rem;font-weight:600;margin:1.25rem 0 .5rem}
+
+/* Text */
+p{margin-bottom:.85rem}
+strong{font-weight:600}
+mark.k{background:none;color:var(--accent);font-weight:600}
+ul,ol{padding-left:1.5rem;margin-bottom:.85rem}
+li{margin-bottom:.35rem}
+
+/* Callout */
+.callout{background:var(--bg2);border-left:4px solid var(--accent);padding:1rem 1.25rem;margin:1.25rem 0;border-radius:0 8px 8px 0;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.callout.warn{border-left-color:var(--warn)}
+.callout.success{border-left-color:var(--success)}
+.callout .label{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;margin-bottom:.4rem;font-weight:600}
+.callout.warn .label{color:var(--warn)}
+.callout.success .label{color:var(--success)}
+
+/* Tables */
+.tbl-wrap{overflow-x:auto;margin:1rem 0;border-radius:8px;border:1px solid var(--rule)}
+table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:500px}
+th{background:var(--accent);color:#fff;padding:.6rem .8rem;text-align:left;font-weight:600;position:sticky;top:0}
+td{padding:.55rem .8rem;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:nth-child(even){background:var(--bg)}
+tr:last-child td{border-bottom:none}
+
+/* Cards */
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.25rem 0}
+.card{background:var(--bg2);border:1px solid var(--rule);border-radius:8px;padding:1.25rem}
+.card h4{margin-top:0;color:var(--accent)}
+.card p{font-size:.85rem;color:var(--muted);margin-bottom:0}
+@media(max-width:640px){.card-grid{grid-template-columns:1fr}}
+
+/* Tags */
+.tag{display:inline-block;font-size:.72rem;font-family:'JetBrains Mono',monospace;padding:2px 10px;border-radius:999px;font-weight:600}
+.tag.must{background:#fed7d7;color:#c53030}
+.tag.ai{background:var(--accent-light);color:var(--accent)}
+.tag.new{background:#c6f6d5;color:#22543d}
+
+/* Confidence Badges */
+.conf{display:inline-flex;align-items:center;gap:.3rem;font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace}
+.conf.high{background:var(--conf-high);color:var(--conf-high-text)}
+.conf.mid{background:var(--conf-mid);color:var(--conf-mid-text)}
+.conf.low{background:var(--conf-low);color:var(--conf-low-text)}
+.conf.none{background:var(--conf-none);color:var(--conf-none-text);border:1px dashed var(--muted)}
+.conf .dot{width:6px;height:6px;border-radius:50%}
+.conf.high .dot{background:var(--success)}
+.conf.mid .dot{background:var(--warn)}
+.conf.low .dot{background:var(--danger)}
+.conf.none .dot{background:var(--muted)}
+
+/* Source Citation */
+.src-cite{display:inline-flex;align-items:center;gap:.25rem;font-size:.72rem;color:var(--accent2);background:var(--accent-light);padding:1px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;cursor:pointer}
+.src-cite:hover{text-decoration:underline}
+
+/* Credibility Stars */
+.cred{font-size:.75rem;letter-spacing:1px}
+.cred .s{color:var(--accent2)}
+.cred .e{color:var(--rule)}
+
+/* ===== Agent Flow Diagram ===== */
+.flow-diagram{background:var(--bg2);border:1px solid var(--rule);border-radius:12px;padding:1.5rem;margin:1.25rem 0;overflow-x:auto}
+.flow-row{display:flex;align-items:stretch;gap:0;min-width:700px;flex-wrap:wrap;justify-content:center}
+.flow-node{flex:1;min-width:100px;max-width:130px;background:var(--bg);border:2px solid var(--accent2);border-radius:8px;padding:.6rem .5rem;text-align:center;font-size:.75rem;font-weight:600;position:relative;margin:0 .2rem}
+.flow-node.core{background:var(--accent);color:#fff;border-color:var(--accent)}
+.flow-node.check{background:var(--conf-mid);border-color:var(--warn)}
+.flow-node .step{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);display:block;margin-bottom:.2rem}
+.flow-node.core .step{color:rgba(255,255,255,.7)}
+.flow-arrow{display:flex;align-items:center;color:var(--accent2);font-size:1rem;font-weight:700;padding:0 .1rem}
+.flow-loop{text-align:center;margin-top:.6rem;font-size:.72rem;color:var(--warn);font-weight:600;display:flex;align-items:center;justify-content:center;gap:.4rem}
+.flow-loop .arrow{font-size:1rem}
+
+/* ===== Prototype Container ===== */
+.proto{border:2px solid var(--accent2);border-radius:12px;overflow:hidden;margin:1.5rem 0;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.proto-header{background:var(--accent);color:#fff;padding:.6rem 1rem;display:flex;align-items:center;justify-content:space-between}
+.proto-header .title{font-size:.82rem;font-weight:600}
+.proto-header .badge{font-family:'JetBrains Mono',monospace;font-size:.68rem;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:4px}
+.proto-body{background:var(--proto-bg);padding:1.25rem}
+.proto-note{background:#fef5e7;border:1px solid #fbd38d;border-radius:6px;padding:.6rem .8rem;margin:.6rem 0;font-size:.8rem;color:#744210}
+.proto-note b{color:#7b341e}
+
+/* App Shell */
+.app-shell{background:#fff;border:1px solid var(--proto-border);border-radius:8px;overflow:hidden}
+.app-topbar{background:var(--accent);color:#fff;padding:.6rem 1rem;display:flex;align-items:center;gap:.75rem}
+.app-topbar .logo{font-weight:700;font-size:.9rem}
+.app-topbar .nav{display:flex;gap:.5rem;margin-left:1.5rem}
+.app-topbar .nav span{font-size:.78rem;padding:3px 10px;border-radius:6px;cursor:pointer;opacity:.7}
+.app-topbar .nav span.active{background:rgba(255,255,255,.2);opacity:1}
+
+/* Forms */
+.field{margin-bottom:.85rem}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--ink);margin-bottom:.3rem}
+.field input[type=text],.field select,.field textarea{width:100%;padding:.5rem .7rem;border:1px solid var(--proto-border);border-radius:6px;font-size:.85rem;font-family:inherit;background:#fff}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent2);box-shadow:0 0 0 3px rgba(0,180,216,.15)}
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.2rem;border:none;border-radius:6px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#0a3a5c}
+.btn-primary:disabled{background:var(--muted);cursor:not-allowed;opacity:.6}
+.btn-outline{background:transparent;border:1px solid var(--accent);color:var(--accent)}
+.btn-outline:hover{background:var(--accent-light)}
+.btn-sm{padding:.3rem .7rem;font-size:.78rem}
+
+/* Progress Steps */
+.progress-steps{display:flex;flex-direction:column;gap:.5rem;margin:.85rem 0}
+.pstep{display:flex;align-items:center;gap:.6rem;padding:.5rem .7rem;border-radius:6px;font-size:.82rem;transition:all .3s}
+.pstep.pending{background:#f7fafc;color:var(--muted)}
+.pstep.active{background:var(--accent-light);color:var(--accent);font-weight:600}
+.pstep.done{background:#f0fff4;color:var(--success)}
+.pstep .icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0}
+.pstep.pending .icon{background:var(--rule)}
+.pstep.active .icon{background:var(--accent2);color:#fff}
+.pstep.done .icon{background:var(--success);color:#fff}
+.pstep .detail{font-size:.72rem;color:var(--muted);font-weight:400}
+
+/* Data Cards */
+.data-cards{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:.85rem 0}
+@media(max-width:520px){.data-cards{grid-template-columns:1fr}}
+.dcard{background:#fff;border:1px solid var(--proto-border);border-radius:6px;padding:.7rem}
+.dcard .dtype{font-size:.72rem;font-weight:600;color:var(--accent2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem}
+.dcard .dval{font-size:.85rem;font-weight:600;color:var(--ink);margin-bottom:.2rem}
+.dcard .ddesc{font-size:.75rem;color:var(--muted)}
+
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.chip{display:inline-flex;align-items:center;gap:.3rem;padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:500}
+.chip.blue{background:#bee3f8;color:#2c5282}
+.chip.green{background:#c6f6d5;color:#276749}
+.chip.red{background:#fed7d7;color:#9b2c2c}
+.chip.gray{background:#e2e8f0;color:#4a5568}
+.chip .x{cursor:pointer;font-weight:700;opacity:.6}
+.chip .x:hover{opacity:1}
+
+/* Checkbox Group */
+.check-group{display:flex;flex-direction:column;gap:.5rem}
+.check-item{display:flex;align-items:center;gap:.5rem;padding:.45rem .7rem;border:1px solid var(--proto-border);border-radius:6px;cursor:pointer;font-size:.82rem;transition:all .15s}
+.check-item:hover{border-color:var(--accent2)}
+.check-item.checked{background:var(--accent-light);border-color:var(--accent2)}
+.check-item .box{width:16px;height:16px;border:2px solid var(--proto-border);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.check-item.checked .box{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* Tabs */
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--rule);margin-bottom:1rem;flex-wrap:wrap}
+.tab{padding:.5rem 1rem;font-size:.82rem;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* Report Table */
+.rpt-table{width:100%;border-collapse:collapse;font-size:.8rem;margin:.5rem 0}
+.rpt-table th{background:var(--accent);color:#fff;padding:.45rem .6rem;text-align:left;font-size:.75rem}
+.rpt-table td{padding:.45rem .6rem;border-bottom:1px solid var(--rule)}
+.rpt-table tr:nth-child(even){background:var(--bg)}
+
+/* Bar Chart */
+.bar-chart{display:flex;align-items:flex-end;gap:.6rem;height:120px;padding:.5rem 0;border-bottom:1px solid var(--rule)}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:.25rem}
+.bar{width:60%;background:linear-gradient(180deg,var(--accent2),var(--accent));border-radius:4px 4px 0 0;transition:height .5s ease;min-height:4px;position:relative}
+.bar .val{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:.7rem;font-weight:600;color:var(--accent);white-space:nowrap}
+.bar-col .lbl{font-size:.72rem;color:var(--muted);text-align:center;white-space:nowrap}
+
+/* Scatter Map */
+.scatter-wrap{position:relative;width:100%;height:280px;background:#fff;border:1px solid var(--proto-border);border-radius:6px;margin:.5rem 0}
+.scatter-dot{position:absolute;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);cursor:pointer;transition:all .2s}
+.scatter-dot:hover{transform:translate(-50%,-50%) scale(1.5);z-index:10}
+.scatter-dot .lbl{position:absolute;top:14px;left:50%;transform:translateX(-50%);font-size:.68rem;white-space:nowrap;color:var(--ink);font-weight:500}
+
+/* Radar Chart (CSS-based) */
+.radar-wrap{display:flex;justify-content:center;padding:1rem 0}
+.radar{width:220px;height:220px;position:relative}
+.radar svg{width:100%;height:100%}
+
+/* Heatmap */
+.heatmap{display:grid;gap:2px;margin:.5rem 0;font-size:.75rem}
+.heatmap .hm-cell{padding:.35rem .5rem;border-radius:3px;text-align:center;font-weight:500}
+.heatmap .hm-head{background:var(--accent);color:#fff;font-weight:600;font-size:.72rem}
+.heatmap .hm-row-head{background:var(--bg2);font-weight:600;color:var(--ink);text-align:left;padding:.35rem .6rem;border:1px solid var(--rule)}
+.hm-h{background:#c6f6d5;color:#22543d}
+.hm-m{background:#fefcbf;color:#744210}
+.hm-l{background:#fed7d7;color:#742a2a}
+.hm-n{background:#e2e8f0;color:#4a5568}
+
+/* Evidence Chain */
+.evidence-chain{margin:.85rem 0}
+.ev-step{display:flex;gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--rule)}
+.ev-step:last-child{border-bottom:none}
+.ev-step .ev-num{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0}
+.ev-step .ev-content{flex:1}
+.ev-step .ev-title{font-size:.82rem;font-weight:600;color:var(--ink)}
+.ev-step .ev-detail{font-size:.75rem;color:var(--muted);margin-top:.15rem}
+
+/* Source List */
+.src-list{display:flex;flex-direction:column;gap:.4rem;margin:.5rem 0}
+.src-item{display:flex;align-items:center;gap:.6rem;padding:.5rem .7rem;background:#fff;border:1px solid var(--proto-border);border-radius:6px;font-size:.8rem}
+.src-item .src-name{flex:1;font-weight:600}
+.src-item .src-type{font-size:.72rem;color:var(--muted)}
+.src-item .src-fresh{font-size:.68rem;color:var(--success)}
+
+/* Stats */
+.dash-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin:.85rem 0}
+@media(max-width:520px){.dash-stats{grid-template-columns:1fr}}
+.stat-card{background:#fff;border:1px solid var(--proto-border);border-radius:8px;padding:.85rem}
+.stat-card .lbl{font-size:.72rem;color:var(--muted);margin-bottom:.2rem}
+.stat-card .val{font-size:1.4rem;font-weight:700;color:var(--accent)}
+
+/* Footer */
+.footer{margin-top:3rem;padding-top:1.5rem;border-top:2px solid var(--accent);text-align:center;font-size:.78rem;color:var(--muted)}
+</style>
+
+<style>
+/* ===== 交互完善版新增样式 ===== */
+html{scroll-behavior:smooth}
+h2[id]{scroll-margin-top:78px}
+.docnav{position:sticky;top:0;z-index:60;display:flex;gap:.3rem;flex-wrap:wrap;align-items:center;
+  background:rgba(255,255,255,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--rule);border-radius:12px;padding:.55rem .75rem;margin:1.2rem 0 2rem;
+  box-shadow:0 4px 18px rgba(15,76,117,.08)}
+.docnav a{font-size:.72rem;color:var(--muted);text-decoration:none;padding:4px 11px;border-radius:999px;
+  font-family:'JetBrains Mono',monospace;transition:all .18s}
+.docnav a:hover{background:var(--accent-light);color:var(--accent)}
+.docnav a.active{background:var(--accent);color:#fff}
+#backtop{position:fixed;right:22px;bottom:22px;width:44px;height:44px;border-radius:13px;border:0;
+  background:var(--accent);color:#fff;font-size:1.1rem;cursor:pointer;z-index:80;
+  box-shadow:0 8px 22px rgba(15,76,117,.35);opacity:0;pointer-events:none;transition:all .25s}
+#backtop.show{opacity:1;pointer-events:auto}
+#backtop:hover{transform:translateY(-2px)}
+#prd-modal{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;z-index:120;padding:1rem}
+#prd-modal.open{display:flex}
+#prd-modal .box{background:#fff;border-radius:14px;max-width:580px;width:100%;max-height:82vh;overflow:auto;
+  padding:1.25rem 1.4rem;box-shadow:0 24px 70px rgba(0,0,0,.32);animation:prdPop .22s ease}
+@keyframes prdPop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+#prd-modal .box h4{margin:0 0 .7rem;color:var(--accent);display:flex;align-items:center;justify-content:space-between;font-size:1rem}
+#prd-modal .box .close{cursor:pointer;border:0;background:var(--bg);border-radius:8px;width:30px;height:30px;
+  color:var(--muted);font-size:.9rem;transition:all .15s}
+#prd-modal .box .close:hover{background:var(--danger);color:#fff}
+#prd-modal .chain{display:flex;flex-direction:column;gap:.5rem;margin-top:.6rem}
+#prd-modal .chain .lv{border-left:3px solid var(--accent);background:var(--bg);padding:.6rem .8rem;
+  border-radius:0 10px 10px 0;font-size:.82rem;line-height:1.7}
+#prd-modal .chain .lv:nth-child(2){border-left-color:var(--warn)}
+#prd-modal .chain .lv:nth-child(3){border-left-color:var(--danger)}
+#prd-modal .chain .lv:nth-child(4){border-left-color:var(--success)}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(18px);
+  background:#0f4c75;color:#fff;padding:.6rem 1.2rem;border-radius:999px;font-size:.8rem;
+  box-shadow:0 10px 28px rgba(0,0,0,.28);opacity:0;transition:all .3s;z-index:200;pointer-events:none;max-width:80vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.proto-header .badge{animation:prdPulse 2.4s infinite}
+@keyframes prdPulse{0%,100%{opacity:1}50%{opacity:.65}}
+.app-shell{box-shadow:0 6px 22px rgba(15,76,117,.10)}
+.app-topbar .nav span{transition:opacity .18s}
+.btn{transition:all .18s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(15,76,117,.15)}
+.btn:active{transform:translateY(0)}
+@media print{.docnav,#backtop,#prd-modal,.no-print{display:none!important}}
+@media(max-width:720px){.docnav{position:static;overflow-x:auto;flex-wrap:nowrap;justify-content:flex-start}
+  .app-topbar{flex-wrap:wrap}.app-topbar .nav{flex-wrap:wrap;margin-left:0}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- COVER -->
+<div class="cover">
+<div class="badge">PRD v3.0 — 双模式·蓝牙赛道聚焦版</div>
+<h1>AI蓝牙芯片竞品情报Agent<br>产品需求文档</h1>
+<p class="sub">聚焦蓝牙芯片赛道，支持"芯片级分析"与"公司级战略分析"双模式，以易兆微电子为行业背景，以Agent闭环逻辑、数据严谨性与证据链推理为核心</p>
+<div class="meta">
+<span>版本：v3.0</span>
+<span>日期：2026-08-13</span>
+<span>赛道：蓝牙芯片（BLE/音频/数传）</span>
+<span>背景公司：易兆微电子（杭州）</span>
+<span>复杂度：重量级</span>
+</div>
+</div>
+
+
+<nav class="docnav" id="docnav" aria-label="文档目录">
+<a href="#sec-1">01 背景</a><a href="#sec-2">02 目标</a><a href="#sec-3">03 架构</a><a href="#sec-4">04 特性</a><a href="#sec-5">05 采集</a><a href="#sec-6">06 校验</a><a href="#sec-7">07 分析</a><a href="#sec-8">08 报告</a><a href="#sec-9">09 溯源</a><a href="#sec-10">10 公司</a><a href="#sec-11">11 架构</a><a href="#sec-12">12 清单</a>
+</nav>
+
+<!-- 01 需求背景 -->
+<h2 id="sec-1"><span class="num">01</span> 需求背景</h2>
+
+<p>v2版PRD建立了"采集→校验→分析→报告→溯源"的闭环架构，但存在两个核心缺口：<strong>一是分析粒度仅停留在"单颗芯片"层面，无法回答"这家友商公司的整体产品布局和战略意图是什么"；二是赛道过于泛化（通用半导体），缺乏蓝牙芯片行业的深度知识。</strong>用户背景为易兆微电子（杭州）——一家专注蓝牙/Wi-Fi/NFC无线SoC芯片的无晶圆厂设计公司，需要的是能直接对标杰理、中科蓝讯、恒玄、泰凌微等蓝牙芯片友商的竞品情报工具。</p>
+
+<div class="card-grid">
+<div class="card">
+<h4>仅芯片级分析，缺公司级视角</h4>
+<p>v2版只能输入"STM32F103"等单颗芯片型号，无法输入"杰理科技"获取其整体产品布局（TWS/音箱/AIoT多线并行）、市场定位（性价比断层式领先）、战略走向（从白牌向品牌渗透）和趋势预判。"友商才是最好的老师"——用户需要从公司层面理解竞争对手的战略全貌。</p>
+</div>
+<div class="card">
+<h4>赛道泛化，蓝牙行业深度不足</h4>
+<p>v2版以MCU（STM32）为例，但蓝牙芯片行业的竞争逻辑与MCU完全不同：蓝牙芯片分BLE数传/蓝牙音频/双模三大方向，TWS耳机芯片赛道杰理市占率39.8%，BLE物联网赛道泰凌微占14.5%，各细分赛道竞争格局差异巨大。需要内置蓝牙芯片行业知识包。</p>
+</div>
+<div class="card">
+<h4>数据未校验，可信度未知</h4>
+<p>采集到的数据未经过交叉校验就直接送入LLM分析，同一参数从官网和电商获取的值可能不一致，系统不检测冲突也不标注置信度。用户无法区分"3个来源一致"和"只有1个来源"的数据可靠性差异。</p>
+</div>
+<div class="card">
+<h4>结论无证据链，不可追溯</h4>
+<p>LLM直接输出分析文本，结论与数据之间的推理关系不透明。报告说"某公司主打性价比"，但用户无法看到这个判断基于哪些数据点（出货量？价格对比？客户类型？），也无法验证推理是否合理。</p>
+</div>
+</div>
+
+<div class="callout">
+<div class="label">蓝牙芯片赛道背景</div>
+<p style="font-size:.82rem"><strong>市场规模：</strong>2025年全球蓝牙音频SoC芯片市场规模约218亿元，CAGR约8.95%（2025-2033）。国内BLE芯片出货占比已达68.4%，成为绝对主流 [$TRAE_REF](https://www.docin.com/touch_new/preview_new.do?id=4990171015)。</p>
+<p style="font-size:.82rem"><strong>竞争格局：</strong>杰理科技TWS主控芯片全球市占率39.8%（2025年出货10.77亿颗），中科蓝讯以RISC-V内核主打高性价比，恒玄科技定位中高端品牌市场，泰凌微聚焦BLE Mesh/IoT/车载 [$TRAE_REF](https://guba.eastmoney.com/news,gssz,1757539724.html) [$TRAE_REF](https://m.sohu.com/a/1061823569_166680/)。</p>
+<p style="font-size:.82rem"><strong>易兆微定位：</strong>2014年成立，杭州滨江，小米投资。产品线覆盖蓝牙数传（YC10XX）、蓝牙音频（YC11XX）、蓝牙SoC（YC13XX）、安全芯片（YC3X）、MCU（YC5X），应用于IoT/POS/ETC/可穿戴/智能家居/无线音频/无线键鼠等 [$TRAE_REF](http://www.yichip.com/newsinfo/2044280.html) [$TRAE_REF](http://www.yichip.com/newsinfo/1787458.html)。</p>
+</div>
+
+<!-- 02 需求目标 -->
+<h2 id="sec-2"><span class="num">02</span> 需求目标</h2>
+
+<p>以Agent闭环架构为核心，重新设计"采集→校验→分析→报告→溯源"的完整链路，使每一份分析报告的每个结论都有据可查、有源可溯。移除用户订阅和商业化模块，将全部工程资源集中于数据质量和分析深度。</p>
+
+<div class="metrics" style="display:flex;gap:2rem;flex-wrap:wrap;margin:1.25rem 0">
+<div class="metric" style="text-align:center"><div style="font-family:Inter;font-size:1.7rem;font-weight:700;color:var(--accent)">100%</div><div style="font-size:.75rem;color:var(--muted)">关键数据点附信息源</div></div>
+<div class="metric" style="text-align:center"><div style="font-family:Inter;font-size:1.7rem;font-weight:700;color:var(--accent)">≥2源</div><div style="font-size:.75rem;color:var(--muted)">高置信结论的最低交叉验证</div></div>
+<div class="metric" style="text-align:center"><div style="font-family:Inter;font-size:1.7rem;font-weight:700;color:var(--accent)">6维</div><div style="font-size:.75rem;color:var(--muted)">可视化图表类型</div></div>
+<div class="metric" style="text-align:center"><div style="font-family:Inter;font-size:1.7rem;font-weight:700;color:var(--accent)">闭环</div><div style="font-size:.75rem;color:var(--muted)">数据缺口自动回补</div></div>
+</div>
+
+<ul>
+<li><strong>数据严谨：</strong>每个关键数据点至少标注1个信息源；高置信度结论需≥2个独立来源交叉验证；来源冲突时保留全部值并标注冲突</li>
+<li><strong>证据链推理：</strong>每个分析结论附带"数据→发现→推论→建议"的推理链，用户可逐层展开查看支撑证据</li>
+<li><strong>闭环自检：</strong>Agent在分析前检测数据缺口，置信度低于阈值的维度自动触发补充采集，形成闭环</li>
+<li><strong>多维可视化：</strong>报告中包含散点定位图、价格柱状图、渠道雷达图、数据覆盖热力图、置信度分布图、话术对比矩阵6种可视化</li>
+</ul>
+
+<!-- 03 Agent闭环架构 -->
+<h2 id="sec-3"><span class="num">03</span> Agent闭环架构</h2>
+
+<p>v3版Agent支持<strong>双模式入口</strong>，共享同一套"校验→分析→报告→溯源"闭环引擎，但在采集规划和分析维度上有所不同：</p>
+
+<div class="card-grid">
+<div class="card">
+<h4>模式A：芯片级分析（v2保留）</h4>
+<p>输入：芯片型号（如YC1308、AB5376A）<br>输出：单颗芯片的6维度营销分析<br>适用：芯片选型对比、参数竞品分析</p>
+</div>
+<div class="card">
+<h4>模式B：公司级分析（v3新增）</h4>
+<p>输入：公司名称（如杰理科技、中科蓝讯）<br>输出：公司产品布局+市场信息+战略布局+趋势预判<br>适用：友商战略研究、竞争态势研判</p>
+</div>
+</div>
+
+<div class="flow-diagram">
+<div class="flow-row">
+<div class="flow-node" style="background:var(--accent-light);border-color:var(--accent)"><span class="step">00</span>模式选择<br>A:芯片型号 / B:公司名称</div>
+<div class="flow-arrow">→</div>
+<div class="flow-node core"><span class="step">02</span>采集规划<br>Agent决策（按模式）</div>
+<div class="flow-arrow">→</div>
+<div class="flow-node"><span class="step">03</span>多源采集<br>6类来源</div>
+<div class="flow-arrow">→</div>
+<div class="flow-node"><span class="step">04</span>数据清洗<br>格式归一化</div>
+</div>
+<div class="flow-row" style="margin-top:.4rem">
+<div class="flow-node"><span class="step">05</span>交叉校验<br>多源比对</div>
+<div class="flow-arrow">→</div>
+<div class="flow-node check"><span class="step">06</span>置信度评分<br>缺口检测</div>
+<div class="flow-arrow">→</div>
+<div class="flow-node core"><span class="step">07</span>LLM推理<br>6维分析</div>
+<div class="flow-arrow">→</div>
+<div class="flow-node check"><span class="step">08</span>结论自检<br>数据一致性</div>
+</div>
+<div class="flow-row" style="margin-top:.4rem">
+<div class="flow-node"><span class="step">09</span>报告组装<br>证据链绑定</div>
+<div class="flow-arrow">→</div>
+<div class="flow-node"><span class="step">10</span>可视化渲染<br>6种图表</div>
+<div class="flow-arrow">→</div>
+<div class="flow-node core"><span class="step">11</span>溯源验证<br>输出报告</div>
+</div>
+<div class="flow-loop">
+<span class="arrow">↻</span> 步骤06检测到数据缺口或置信度<阈值时，自动回到步骤02触发补充采集（最多2轮）
+</div>
+</div>
+
+<h3>闭环机制详解</h3>
+<div class="tbl-wrap">
+<table>
+<tr><th>环节</th><th>输入</th><th>Agent动作</th><th>输出</th><th>闭环条件</th></tr>
+<tr><td>采集规划</td><td>芯片型号 + 竞品列表</td><td>LLM根据芯片类型判断需要采集哪些维度、从哪些来源采集</td><td>采集计划JSON（维度×来源矩阵）</td><td>—</td></tr>
+<tr><td>多源采集</td><td>采集计划</td><td>并行访问6类来源，每条数据附带来源URL、采集时间戳、来源类型</td><td>原始数据包（含来源元信息）</td><td>—</td></tr>
+<tr><td>交叉校验</td><td>原始数据包</td><td>同一事实多源比对：一致→标记验证通过；冲突→保留全部值，标注冲突</td><td>校验后数据包（含验证状态）</td><td>—</td></tr>
+<tr><td>置信度评分</td><td>校验后数据包</td><td>置信度 = 来源可信度权重 × 数据新鲜度 × 交叉验证数。维度覆盖率<40%标记为缺口</td><td>置信度报告 + 缺口清单</td><td><strong>置信度<阈值 → 回到采集规划</strong></td></tr>
+<tr><td>LLM推理</td><td>校验后数据 + 分析框架</td><td>按6个营销维度调用LLM，要求输出包含数据引用和推理过程</td><td>结构化分析结果（含证据链）</td><td>—</td></tr>
+<tr><td>结论自检</td><td>分析结果</td><td>逆向验证：每个结论的引用数据是否真实存在于数据包中；结论与数据是否矛盾</td><td>自检报告（通过/标记异常）</td><td><strong>异常结论 → 重新推理</strong></td></tr>
+</table>
+</div>
+
+<h3>来源可信度分级</h3>
+<div class="tbl-wrap">
+<table>
+<tr><th>来源类型</th><th>可信度权重</th><th>示例</th><th>说明</th></tr>
+<tr><td>官方文档</td><td><span class="cred"><span class="s">★★★★★</span></span> 1.0</td><td>官网产品页、Datasheet PDF</td><td>厂商发布的一手信息，最高可信度</td></tr>
+<tr><td>授权电商平台</td><td><span class="cred"><span class="s">★★★★</span><span class="e">★</span></span> 0.8</td><td>立创商城、得捷、贸泽</td><td>授权渠道价格具有参考价值</td></tr>
+<tr><td>行业媒体</td><td><span class="cred"><span class="s">★★★</span><span class="e">★★</span></span> 0.6</td><td>半导体行业观察、电子发烧友</td><td>专业媒体报道，可能有转载延迟</td></tr>
+<tr><td>技术论坛</td><td><span class="cred"><span class="s">★★</span><span class="e">★★★</span></span> 0.4</td><td>21ic、EEVblog、知乎技术帖</td><td>用户生成内容，需交叉验证</td></tr>
+<tr><td>社交媒体</td><td><span class="cred"><span class="s">★</span><span class="e">★★★★</span></span> 0.2</td><td>微博、B站、微信公众号</td><td>最低可信度，仅作参考信号</td></tr>
+</table>
+</div>
+
+<!-- 04 AI产品特性 -->
+<h2 id="sec-4"><span class="num">04</span> AI产品特性</h2>
+
+<h3>置信度评分模型</h3>
+<p>每个数据点的置信度由三个因子计算得出：</p>
+<div class="callout">
+<div class="label">置信度公式</div>
+<p><code>置信度 = 来源可信度权重 × 数据新鲜度系数 × 交叉验证系数</code></p>
+<p style="font-size:.82rem;margin-top:.4rem">来源可信度权重：见上方分级表（1.0 ~ 0.2）<br>数据新鲜度系数：7天内=1.0，30天内=0.8，90天内=0.6，180天内=0.4，更早=0.2<br>交叉验证系数：3+源一致=1.0，2源一致=0.8，1源=0.5，2+源冲突=0.3</p>
+</div>
+<p>置信度评分映射为四级标识：</p>
+<div class="tbl-wrap">
+<table>
+<tr><th>置信度区间</th><th>标识</th><th>报告中的展示</th></tr>
+<tr><td>≥0.8</td><td><span class="conf high"><span class="dot"></span>高</span></td><td>正常展示，标注"多源验证"</td></tr>
+<tr><td>0.5-0.79</td><td><span class="conf mid"><span class="dot"></span>中</span></td><td>正常展示，标注"单一来源"</td></tr>
+<tr><td>0.3-0.49</td><td><span class="conf low"><span class="dot"></span>低</span></td><td>灰色展示，标注"数据待验证"</td></tr>
+<tr><td><0.3 或无数据</td><td><span class="conf none"><span class="dot"></span>数据不足</span></td><td>虚线占位，标注"建议补充采集"</td></tr>
+</table>
+</div>
+
+<h3>回退机制</h3>
+<div class="callout warn">
+<div class="label">三层降级策略</div>
+<p><strong>第一层：</strong>LLM API超时（>60s）→ 该维度降级为纯数据展示，不生成AI推论，标注"AI分析暂不可用"<br><strong>第二层：</strong>LLM输出格式异常（JSON解析失败）→ 降级为文本展示，标注"格式异常，已转文本"<br><strong>第三层：</strong>采集完全失败（所有来源均不可用）→ 返回错误页面，引导用户检查输入或稍后重试</p>
+</div>
+
+<!-- ==================== 功能模块1 ==================== -->
+<h2 id="sec-5"><span class="num">05</span> 功能模块：智能采集引擎</h2>
+<span class="tag must">MUST</span> <span class="tag ai">Agent决策核心</span>
+
+<div class="proto">
+<div class="proto-header">
+<div class="title">交互原型 — 智能采集引擎（含采集规划与来源分级）</div>
+<div class="badge">点击可交互</div>
+</div>
+<div class="proto-body">
+<div class="proto-note"><b>操作提示：</b>输入芯片型号，点击"启动Agent采集"，观察Agent自动规划采集来源、分源并行采集进度、数据覆盖矩阵和置信度预览。</div>
+
+<div class="app-shell">
+<div class="app-topbar">
+<span class="logo">ChipIntel Agent</span>
+<div class="nav"><span class="active">采集</span><span>校验</span><span>分析</span><span>报告</span><span>溯源</span></div>
+</div>
+<div style="padding:1rem">
+
+<div class="field">
+<label>输入芯片型号（Agent将自动规划采集方案）</label>
+<input type="text" id="v2-chipInput" placeholder="例如：STM32F103" value="STM32F103">
+</div>
+
+<button class="btn btn-primary" id="v2-collectBtn" onclick="v2StartCollect()">启动Agent采集</button>
+
+<div id="v2-collectResult" style="display:none;margin-top:1rem">
+
+<h4>Agent采集规划</h4>
+<p style="font-size:.8rem;color:var(--muted)">Agent根据"STM32F103"自动识别为ARM Cortex-M3 MCU，规划以下6维度×6来源采集矩阵：</p>
+<div class="tbl-wrap" style="max-height:280px">
+<table style="font-size:.78rem;min-width:600px">
+<tr><th>分析维度</th><th>官网 ★★★★★</th><th>Datasheet ★★★★★</th><th>电商 ★★★★</th><th>新闻 ★★★</th><th>论坛 ★★</th><th>社交 ★</th></tr>
+<tr><td><b>产品定位</b></td><td style="background:#c6f6d5">✓ 规划</td><td style="background:#c6f6d5">✓ 规划</td><td style="color:var(--muted)">—</td><td style="background:#c6f6d5">✓ 规划</td><td style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td></tr>
+<tr><td><b>价格策略</b></td><td style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td><td style="background:#c6f6d5">✓ 规划</td><td style="background:#c6f6d5">✓ 规划</td><td style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td></tr>
+<tr><td><b>渠道策略</b></td><td style="background:#c6f6d5">✓ 规划</td><td style="color:var(--muted)">—</td><td style="background:#c6f6d5">✓ 规划</td><td style="background:#c6f6d5">✓ 规划</td><td style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td></tr>
+<tr><td><b>传播话术</b></td><td style="background:#c6f6d5">✓ 规划</td><td style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td><td style="background:#c6f6d5">✓ 规划</td><td style="background:#c6f6d5">✓ 规划</td><td style="background:#c6f6d5">✓ 规划</td></tr>
+<tr><td><b>技术参数</b></td><td style="background:#c6f6d5">✓ 规划</td><td style="background:#c6f6d5">✓ 规划</td><td style="background:#c6f6d5">✓ 规划</td><td style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td></tr>
+<tr><td><b>目标客户</b></td><td style="background:#c6f6d5">✓ 规划</td><td style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td><td style="background:#c6f6d5">✓ 规划</td><td style="background:#c6f6d5">✓ 规划</td><td style="color:var(--muted)">—</td></tr>
+</table>
+</div>
+
+<div class="progress-steps" id="v2-steps" style="margin-top:.85rem">
+<div class="pstep pending"><div class="icon">1</div> <div>采集官网产品页 <span class="detail">来源可信度 ★★★★★ · 预计2s</span></div></div>
+<div class="pstep pending"><div class="icon">2</div> <div>解析Datasheet PDF <span class="detail">来源可信度 ★★★★★ · 预计3s</span></div></div>
+<div class="pstep pending"><div class="icon">3</div> <div>抓取电商平台报价 <span class="detail">来源可信度 ★★★★ · 立创+得捷 · 预计2s</span></div></div>
+<div class="pstep pending"><div class="icon">4</div> <div>检索行业新闻 <span class="detail">来源可信度 ★★★ · 近90天 · 预计3s</span></div></div>
+<div class="pstep pending"><div class="icon">5</div> <div>抓取技术论坛讨论 <span class="detail">来源可信度 ★★ · 21ic+EEVblog · 预计2s</span></div></div>
+<div class="pstep pending"><div class="icon">6</div> <div>采集社交媒体信号 <span class="detail">来源可信度 ★ · 微博+B站 · 预计2s</span></div></div>
+</div>
+
+<div id="v2-preview" style="display:none">
+<h4 style="margin-top:1rem">采集结果概览 <span class="conf high"><span class="dot"></span>整体置信度: 0.76</span></h4>
+<div class="data-cards" style="grid-template-columns:1fr 1fr 1fr">
+<div class="dcard"><div class="dtype">数据条目</div><div class="dval">47条</div><div class="ddesc">含来源URL和时间戳</div></div>
+<div class="dcard"><div class="dtype">来源数</div><div class="dval">6个</div><div class="ddesc">5个成功 / 1个部分失败</div></div>
+<div class="dcard"><div class="dtype">维度覆盖</div><div class="dval">6/6</div><div class="ddesc">传播话术维度覆盖偏低</div></div>
+<div class="dcard"><div class="dtype">交叉验证</div><div class="dval">12/47</div><div class="ddesc">12条数据有多源验证</div></div>
+<div class="dcard"><div class="dtype">数据冲突</div><div class="dval">3条</div><div class="ddesc">价格信息存在来源差异</div></div>
+<div class="dcard"><div class="dtype">数据缺口</div><div class="dval">1处</div><div class="ddesc">社交媒体信号不足</div></div>
+</div>
+<div class="callout warn" style="margin-top:.6rem" id="v2-gap">
+<div class="label">缺口检测</div>
+<p style="font-size:.82rem">"传播话术"维度数据覆盖率55%（阈值60%），社交媒体来源采集不足。Agent建议：<mark class="k">自动触发第2轮补充采集</mark>，聚焦微信公众号和技术博客。用户也可选择跳过，继续分析（该维度置信度将标为"中"）。</p>
+<button class="btn btn-primary btn-sm" style="margin-top:.4rem" onclick="v2Supplement()">↻ 触发补充采集</button>
+<button class="btn btn-outline btn-sm" style="margin-top:.4rem;margin-left:.4rem" onclick="v2Skip()">跳过，继续分析</button>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+<h3>页面布局</h3>
+<p>采集页面分为四个区域：输入区（芯片型号输入框 + 启动按钮）、采集规划矩阵区（Agent自动生成的维度×来源规划表，绿色标记计划采集项）、采集进度区（6个来源的分步进度，每步显示来源可信度和预计耗时）、结果概览区（数据条目数、来源数、维度覆盖、交叉验证数、冲突数、缺口数6个指标卡片 + 缺口检测告警）。</p>
+
+<h3>业务逻辑</h3>
+<p>用户输入芯片型号后，Agent启动以下流程：</p>
+<ol>
+<li><strong>采集规划（Agent决策）：</strong>LLM根据输入识别芯片类型（MCU/MPU/电源IC/射频等），自动判断该类型需要采集哪些分析维度、每个维度应从哪些来源采集。例如MCU类芯片重点采集"技术参数+价格+渠道"，电源IC重点采集"价格+目标客户"。输出维度×来源的规划矩阵，用户可手动调整。</li>
+<li><strong>多源并行采集：</strong>系统按规划矩阵并行访问6类来源。每条采集到的数据自动附带三个元信息：来源URL（可点击验证）、采集时间戳（精确到秒）、来源类型（对应可信度权重）。单源采集失败不影响其他来源，失败源标注"采集失败"并计入缺口检测。</li>
+<li><strong>数据新鲜度标记：</strong>采集时记录每条数据的原始发布时间（从页面meta或内容中提取），与采集时间共同计算新鲜度系数。无法提取发布时间的数据默认新鲜度为0.6。</li>
+<li><strong>缺口检测与闭环触发：</strong>采集完成后，系统计算每个维度的数据覆盖率（已采集数据条目/预期条目）。覆盖率低于60%的维度标记为缺口，Agent自动建议触发第2轮补充采集（聚焦缺口维度的高可信来源）。用户可选择执行补充采集或跳过。补充采集最多2轮，2轮后仍有缺口的维度在报告中标注"数据不足"。</li>
+</ol>
+
+<h3>字段规则</h3>
+<div class="tbl-wrap">
+<table>
+<tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>芯片型号</td><td>文本</td><td>是</td><td>2-50字符，支持型号或系列名</td></tr>
+<tr><td>来源URL</td><td>URL</td><td>是</td><td>每条数据的原始来源链接</td></tr>
+<tr><td>采集时间戳</td><td>DateTime</td><td>是</td><td>Agent采集该数据的精确时间</td></tr>
+<tr><td>数据发布时间</td><td>Date</td><td>否</td><td>原始内容的发布时间，用于新鲜度计算</td></tr>
+<tr><td>来源类型</td><td>枚举</td><td>是</td><td>official/datasheet/ecommerce/media/forum/social</td></tr>
+<tr><td>维度覆盖状态</td><td>枚举</td><td>是</td><td>covered(≥60%)/partial(30-59%)/gap(<30%)</td></tr>
+</table>
+</div>
+
+<h3>边界与异常</h3>
+<ul>
+<li><strong>型号无法识别：</strong>LLM返回"无法识别该芯片类型，请输入完整型号（如STM32F103C8T6）或品牌+系列（如ST STM32F1）"</li>
+<li><strong>官网不可访问：</strong>跳过该来源，标注"官网不可达"，不影响其他来源采集。如果官网是唯一高可信来源，维度置信度上限降为"中"</li>
+<li><strong>采集超时（单源>30秒）：</strong>终止该源采集，已有数据保留。超时源标注"采集超时"</li>
+<li><strong>补充采集仍未补齐：</strong>2轮补充后仍有缺口的维度，在报告中以虚线占位框展示，标注"该维度数据不足，结论仅供参考"</li>
+</ul>
+
+<!-- ==================== 功能模块2 ==================== -->
+<h2 id="sec-6"><span class="num">06</span> 功能模块：数据清洗与交叉校验</h2>
+<span class="tag must">MUST</span> <span class="tag new">v2新增</span> <span class="tag ai">Agent核心</span>
+
+<div class="proto">
+<div class="proto-header">
+<div class="title">交互原型 — 数据清洗与交叉校验（含冲突检测与置信度评分）</div>
+<div class="badge">点击可交互</div>
+</div>
+<div class="proto-body">
+<div class="proto-note"><b>操作提示：</b>查看同一数据点从不同来源获取的值，观察交叉验证状态（一致/冲突），查看置信度评分分解。</div>
+
+<div class="app-shell">
+<div class="app-topbar">
+<span class="logo">ChipIntel Agent</span>
+<div class="nav"><span>采集</span><span class="active">校验</span><span>分析</span><span>报告</span><span>溯源</span></div>
+</div>
+<div style="padding:1rem">
+
+<h4>交叉验证表 — STM32F103 关键数据点</h4>
+<div class="tbl-wrap">
+<table style="font-size:.78rem;min-width:650px">
+<tr><th>数据点</th><th>来源1</th><th>来源2</th><th>来源3</th><th>验证状态</th><th>置信度</th></tr>
+<tr>
+<td><b>主频</b></td>
+<td>72MHz <span class="src-cite">[官网]</span></td>
+<td>72MHz <span class="src-cite">[DS]</span></td>
+<td>72MHz <span class="src-cite">[电商]</span></td>
+<td><span class="chip green">3源一致</span></td>
+<td><span class="conf high"><span class="dot"></span>0.80</span></td>
+</tr>
+<tr>
+<td><b>内核</b></td>
+<td>Cortex-M3 <span class="src-cite">[官网]</span></td>
+<td>Cortex-M3 <span class="src-cite">[DS]</span></td>
+<td>—</td>
+<td><span class="chip green">2源一致</span></td>
+<td><span class="conf high"><span class="dot"></span>0.80</span></td>
+</tr>
+<tr>
+<td><b>参考价</b></td>
+<td>¥8.50 <span class="src-cite">[立创]</span></td>
+<td>¥9.20 <span class="src-cite">[得捷]</span></td>
+<td>¥8.80 <span class="src-cite">[新闻]</span></td>
+<td><span class="chip red">3源冲突</span></td>
+<td><span class="conf mid"><span class="dot"></span>0.38</span></td>
+</tr>
+<tr>
+<td><b>Flash</b></td>
+<td>64KB <span class="src-cite">[DS]</span></td>
+<td>64KB <span class="src-cite">[官网]</span></td>
+<td>—</td>
+<td><span class="chip green">2源一致</span></td>
+<td><span class="conf high"><span class="dot"></span>0.80</span></td>
+</tr>
+<tr>
+<td><b>目标市场</b></td>
+<td>工业控制 <span class="src-cite">[官网]</span></td>
+<td>—</td>
+<td>—</td>
+<td><span class="chip gray">单源</span></td>
+<td><span class="conf mid"><span class="dot"></span>0.50</span></td>
+</tr>
+<tr>
+<td><b>渠道策略</b></td>
+<td>代理体系 <span class="src-cite">[官网]</span></td>
+<td>授权代理20+ <span class="src-cite">[新闻]</span></td>
+<td>—</td>
+<td><span class="chip green">2源一致</span></td>
+<td><span class="conf mid"><span class="dot"></span>0.48</span></td>
+</tr>
+</table>
+</div>
+
+<div class="callout warn" style="margin-top:.8rem">
+<div class="label">冲突处理 — 参考价</div>
+<p style="font-size:.82rem">3个来源的价格不一致：立创¥8.50、得捷¥9.20、行业新闻¥8.80。<mark class="k">Agent处理策略：</mark>保留全部3个值，以立创（授权电商★4，新鲜度1.0）为基准值，得捷价格标注"含运费溢价"，新闻价格标注"媒体引用，非实时"。报告中价格区间显示为"¥8.50-9.20"，并标注"3源冲突，已保留全部值"。</p>
+</div>
+
+<h4 style="margin-top:1rem">置信度评分分解</h4>
+<div class="tbl-wrap">
+<table style="font-size:.78rem">
+<tr><th>数据点</th><th>来源权重</th><th>× 新鲜度</th><th>× 交叉验证</th><th>= 置信度</th><th>等级</th></tr>
+<tr><td>主频 72MHz</td><td>1.0 (官网)</td><td>× 1.0 (7天内)</td><td>× 0.8 (2源一致)</td><td>= <b>0.80</b></td><td><span class="conf high"><span class="dot"></span>高</span></td></tr>
+<tr><td>参考价</td><td>0.8 (电商)</td><td>× 1.0 (7天内)</td><td>× 0.3 (冲突)</td><td>= <b>0.24→0.38</b></td><td><span class="conf mid"><span class="dot"></span>中</span></td></tr>
+<tr><td>目标市场</td><td>1.0 (官网)</td><td>× 0.6 (90天内)</td><td>× 0.5 (单源)</td><td>= <b>0.30</b></td><td><span class="conf low"><span class="dot"></span>低</span></td></tr>
+</table>
+</div>
+<p style="font-size:.72rem;color:var(--muted);margin-top:.3rem">注：参考价因3源冲突，Agent采用"取最高单源置信度+冲突惩罚"策略，最终置信度= max(0.8×1.0×0.5) × 0.95 = 0.38</p>
+
+<div class="dash-stats" style="margin-top:.85rem">
+<div class="stat-card">
+<div class="lbl">总数据条目</div><div class="val">47</div>
+<div style="font-size:.72rem;color:var(--muted)">STM32F103</div>
+</div>
+<div class="stat-card">
+<div class="lbl">交叉验证通过</div><div class="val">28</div>
+<div style="font-size:.72rem;color:var(--success)">60% 多源一致</div>
+</div>
+<div class="stat-card">
+<div class="lbl">冲突/单源</div><div class="val">19</div>
+<div style="font-size:.72rem;color:var(--warn)">3冲突 + 16单源</div>
+</div>
+</div>
+
+<button class="btn btn-primary" onclick="goSection('sec-7')">✓ 校验完成，进入分析 →</button>
+
+</div>
+</div>
+</div>
+</div>
+
+<h3>页面布局</h3>
+<p>校验页面分为四个区域：交叉验证表区（每个关键数据点一行，列出各来源的值和引用，显示验证状态和置信度）、冲突处理卡片区（对存在冲突的数据点，展示Agent的处理策略和最终采用的值）、置信度分解表区（展示置信度公式的三因子计算过程）、校验统计区（总条目、交叉验证通过数、冲突/单源数3个指标卡片）。</p>
+
+<h3>业务逻辑</h3>
+<ol>
+<li><strong>格式归一化：</strong>Agent将不同来源的异构数据统一格式。价格统一为人民币元（汇率按采集日折算），日期统一为ISO 8601，参数统一为标准单位（MHz、KB、mA等）。无法归一化的字段保留原始值并标注"格式未统一"。</li>
+<li><strong>交叉验证：</strong>对同一数据点（如"主频"），系统从不同来源获取的值进行比对。完全一致→标记"多源一致"；数值有小幅差异（如价格±5%）→标记"基本一致"并取均值；差异较大→标记"冲突"并保留全部值。每个数据点记录验证来源数和验证状态。</li>
+<li><strong>冲突处理策略：</strong>当来源冲突时，Agent不自行取舍，而是保留全部值。处理方式：以可信度最高的来源值为基准，其他来源值作为参考标注。报告中显示为区间值或主值+注释。冲突状态在报告中透明展示，用户可自行判断。</li>
+<li><strong>置信度计算：</strong>按公式<code>置信度 = 来源权重 × 新鲜度系数 × 交叉验证系数</code>计算每个数据点的置信度。冲突数据点采用"最高单源置信度 × 冲突惩罚系数(0.95)"作为最终置信度。置信度结果映射为四级标识（高/中/低/数据不足）。</li>
+<li><strong>校验报告输出：</strong>校验完成后输出结构化数据包，每条数据包含：值、来源URL、来源类型、采集时间、发布时间、验证状态、验证来源数、置信度分数、置信度等级。此数据包作为下游分析引擎的输入。</li>
+</ol>
+
+<h3>边界与异常</h3>
+<ul>
+<li><strong>无法提取发布时间：</strong>部分来源（如电商页面）不显示内容发布时间，该数据点新鲜度默认为0.6，置信度上限为"中"</li>
+<li><strong>全部来源冲突：</strong>3个以上来源值各不相同，Agent标注"严重冲突"，该数据点置信度降为"低"，在报告中以灰色展示并提示"数据存在严重分歧，建议人工核实"</li>
+<li><strong>数据完全缺失：</strong>某维度无任何来源返回数据，标注"数据不足"，在分析阶段该维度跳过LLM推理，报告中以虚线占位</li>
+</ul>
+
+<!-- ==================== 功能模块3 ==================== -->
+<h2 id="sec-7"><span class="num">07</span> 功能模块：营销分析引擎</h2>
+<span class="tag must">MUST</span> <span class="tag ai">Agent核心推理</span>
+
+<div class="proto">
+<div class="proto-header">
+<div class="title">交互原型 — 营销分析引擎（6维度分析 + 证据链推理 + 结论自检）</div>
+<div class="badge">点击可交互</div>
+</div>
+<div class="proto-body">
+<div class="proto-note"><b>操作提示：</b>点击6个营销维度标签查看分析结果，展开证据链查看推理过程，点击"启动结论自检"验证分析质量。</div>
+
+<div class="app-shell">
+<div class="app-topbar">
+<span class="logo">ChipIntel Agent</span>
+<div class="nav"><span>采集</span><span>校验</span><span class="active">分析</span><span>报告</span><span>溯源</span></div>
+</div>
+<div style="padding:1rem">
+
+<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.85rem;flex-wrap:wrap">
+<span style="font-size:.82rem;font-weight:600">STM32F103 营销分析</span>
+<span class="conf high"><span class="dot"></span>数据就绪: 47条 · 校验通过</span>
+</div>
+
+<div class="tabs" id="v3-tabs">
+<div class="tab active" onclick="v3SwitchTab(0)">① 产品定位</div>
+<div class="tab" onclick="v3SwitchTab(1)">② 价格策略</div>
+<div class="tab" onclick="v3SwitchTab(2)">③ 渠道策略</div>
+<div class="tab" onclick="v3SwitchTab(3)">④ 传播话术</div>
+<div class="tab" onclick="v3SwitchTab(4)">⑤ 技术参数</div>
+<div class="tab" onclick="v3SwitchTab(5)">⑥ 目标客户</div>
+</div>
+
+<div id="v3-tab0" class="tab-panel active">
+<div class="callout">
+<div class="label">LLM分析结论</div>
+<p style="font-size:.85rem"><strong>STM32F103定位为高性能主流Cortex-M3 MCU，主打工业控制与消费电子的中高端应用场景。</strong>ST将其与STM32F1系列其他型号形成阶梯定价，F103作为中频段主力型号，通过丰富的外设生态和成熟的开发工具链构建切换成本壁垒。</p>
+</div>
+
+<h4 style="margin-top:.85rem">证据链推理</h4>
+<div class="evidence-chain">
+<div class="ev-step">
+<div class="ev-num">1</div>
+<div class="ev-content">
+<div class="ev-title">数据：主频72MHz / Cortex-M3内核 / 64KB Flash</div>
+<div class="ev-detail">来源：官网<span class="src-cite">[ST.com]</span> + Datasheet<span class="src-cite">[PDF]</span> · 置信度 <span class="conf high"><span class="dot"></span>0.80</span> · 3源一致</div>
+</div>
+</div>
+<div class="ev-step">
+<div class="ev-num">2</div>
+<div class="ev-content">
+<div class="ev-title">发现：72MHz在Cortex-M3阵营中属中高频段，高于GD32F103(108MHz但实际稳定性争议)和CH32F103(144MHz但生态薄弱)</div>
+<div class="ev-detail">对比数据来源：电商参数对比 + 行业媒体评测 · 置信度 <span class="conf mid"><span class="dot"></span>0.62</span></div>
+</div>
+</div>
+<div class="ev-step">
+<div class="ev-num">3</div>
+<div class="ev-content">
+<div class="ev-title">推论：ST通过"适中频率+成熟生态"策略平衡性能与可靠性，而非追求极限参数</div>
+<div class="ev-detail">推理依据：官网强调"robust"和"mainstream"而非"highest"；论坛讨论中用户选择F103的首因是"稳定"而非"最快" · 置信度 <span class="conf mid"><span class="dot"></span>0.58</span></div>
+</div>
+</div>
+<div class="ev-step">
+<div class="ev-num">4</div>
+<div class="ev-content">
+<div class="ev-title">建议：竞品营销可切入"同等性能+更低价格"或"更高频率+同等生态"两个差异化方向</div>
+<div class="ev-detail">策略依据：F103的弱点在于价格（¥8.5 vs 国产¥4-6）和频率上限 · 建议置信度 <span class="conf mid"><span class="dot"></span>0.55</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="v3-tab1" class="tab-panel">
+<div class="callout">
+<div class="label">LLM分析结论</div>
+<p style="font-size:.85rem"><strong>STM32F103采用"品牌溢价+阶梯定价"策略，参考价¥8.50-9.20区间，显著高于国产替代品（CH32F103 ¥4.8，GD32F103 ¥5.2），价差约40-45%。</strong>ST通过授权代理体系维持价格稳定，不参与价格战，以品牌信任和长期供货保障支撑溢价。</p>
+</div>
+<h4 style="margin-top:.85rem">证据链推理</h4>
+<div class="evidence-chain">
+<div class="ev-step"><div class="ev-num">1</div><div class="ev-content"><div class="ev-title">数据：立创¥8.50 / 得捷¥9.20 / 媒体¥8.80</div><div class="ev-detail">来源：3个电商平台 <span class="src-cite">[立创]</span><span class="src-cite">[得捷]</span><span class="src-cite">[新闻]</span> · 置信度 <span class="conf mid"><span class="dot"></span>0.38</span> · ⚠ 3源冲突</div></div></div>
+<div class="ev-step"><div class="ev-num">2</div><div class="ev-content"><div class="ev-title">发现：CH32F103 ¥4.8（-44%）、GD32F103 ¥5.2（-39%）、AT32F403A ¥6.8（-20%）</div><div class="ev-detail">来源：电商平台报价 · 置信度 <span class="conf mid"><span class="dot"></span>0.64</span></div></div></div>
+<div class="ev-step"><div class="ev-num">3</div><div class="ev-content"><div class="ev-title">推论：ST的价格策略不以低价竞争为目标，而是通过生态锁定维持溢价</div><div class="ev-detail">推理依据：官网未提及价格优势，强调"ecosystem"和"long-term availability"；论坛用户反馈"贵但不敢换" · 置信度 <span class="conf mid"><span class="dot"></span>0.56</span></div></div></div>
+<div class="ev-step"><div class="ev-num">4</div><div class="ev-content"><div class="ev-title">建议：国产竞品定价区间¥4-6具备40%+价格优势，可主打"Pin-to-Pin兼容+1/3成本"</div><div class="ev-detail">策略依据：价格差异数据 + 论坛兼容性讨论 · 建议置信度 <span class="conf mid"><span class="dot"></span>0.60</span></div></div></div>
+</div>
+</div>
+
+<div id="v3-tab2" class="tab-panel">
+<div class="callout">
+<div class="label">LLM分析结论</div>
+<p style="font-size:.85rem"><strong>ST采用"全球授权代理+官方直营"双轨渠道，中国大陆通过20+授权代理商覆盖，核心代理包括文晔、世平、贸泽等。</strong>渠道管控严格，授权与非授权价差约15-20%，通过渠道管控维持品牌价格体系。</p>
+</div>
+<h4 style="margin-top:.85rem">证据链推理</h4>
+<div class="evidence-chain">
+<div class="ev-step"><div class="ev-num">1</div><div class="ev-content"><div class="ev-title">数据：官网列出授权代理商20+家 / 行业新闻提及文晔、世平为核心代理</div><div class="ev-detail">来源：官网<span class="src-cite">[ST.com]</span> + 新闻<span class="src-cite">[媒体]</span> · 置信度 <span class="conf mid"><span class="dot"></span>0.48</span> · 2源一致</div></div></div>
+<div class="ev-step"><div class="ev-num">2</div><div class="ev-content"><div class="ev-title">发现：授权代理价格¥8.5-9.2，非授权（淘宝/华强北）价格¥6-7，价差约20%</div><div class="ev-detail">来源：电商平台 + 论坛讨论 · 置信度 <span class="conf mid"><span class="dot"></span>0.52</span></div></div></div>
+<div class="ev-step"><div class="ev-num">3</div><div class="ev-content"><div class="ev-title">推论：ST通过严格授权管控维护价格体系，非授权渠道存在但不被官方认可</div><div class="ev-detail">推理依据：官网授权列表 + 渠道价格差异 · 置信度 <span class="conf mid"><span class="dot"></span>0.50</span></div></div></div>
+<div class="ev-step"><div class="ev-num">4</div><div class="ev-content"><div class="ev-title">建议：国产竞品可通过缩短代理链条、直供终端客户来降低渠道成本15%+</div><div class="ev-detail">策略依据：渠道层级分析 + 价格差异数据 · 建议置信度 <span class="conf low"><span class="dot"></span>0.42</span></div></div></div>
+</div>
+</div>
+
+<div id="v3-tab3" class="tab-panel">
+<div class="callout">
+<div class="label">LLM分析结论</div>
+<p style="font-size:.85rem"><strong>ST的传播核心围绕"可靠性、生态成熟度、长期供货保障"三大支柱。</strong>官网高频词：robust(87次)、ecosystem(64次)、mainstream(52次)、long-term(43次)。传播话术不强调参数极限，而强调"放心选、放心用"。</p>
+</div>
+<h4 style="margin-top:.85rem">证据链推理</h4>
+<div class="evidence-chain">
+<div class="ev-step"><div class="ev-num">1</div><div class="ev-content"><div class="ev-title">数据：官网产品页关键词频次分析 + 3篇行业评测文章话术提取</div><div class="ev-detail">来源：官网<span class="src-cite">[ST.com]</span> + 媒体<span class="src-cite">[报道]</span> · 置信度 <span class="conf mid"><span class="dot"></span>0.55</span></div></div></div>
+<div class="ev-step"><div class="ev-num">2</div><div class="ev-content"><div class="ev-title">发现：对比国产竞品官网，GD32强调"兼容+高性能"，CH32强调"极致性价比"</div><div class="ev-detail">来源：竞品官网 + 行业媒体 · 置信度 <span class="conf mid"><span class="dot"></span>0.50</span></div></div></div>
+<div class="ev-step"><div class="ev-num">3</div><div class="ev-content"><div class="ev-title">推论：ST传播策略以"降低决策风险"为核心，国产竞品以"降低采购成本"为核心</div><div class="ev-detail">推理依据：话术差异分析 + 论坛用户决策因素讨论 · 置信度 <span class="conf low"><span class="dot"></span>0.45</span></div></div></div>
+<div class="ev-step"><div class="ev-num">4</div><div class="ev-content"><div class="ev-title">建议：竞品传播可切入"同等可靠+显著更省"，用具体案例证明国产替代可行性</div><div class="ev-detail">策略依据：话术空白分析 + 替代成功案例 · 建议置信度 <span class="conf low"><span class="dot"></span>0.42</span></div></div></div>
+</div>
+</div>
+
+<div id="v3-tab4" class="tab-panel">
+<div class="callout">
+<div class="label">LLM分析结论</div>
+<p style="font-size:.85rem"><strong>STM32F103核心参数：Cortex-M3 / 72MHz / 64KB Flash / 20KB RAM / 2.0-3.6V / 37个I/O。</strong>技术规格属主流水平，未刻意追求极限参数。外设丰富度（7个通信接口、3个ADC、2个DAC）是其工程竞争力的核心。</p>
+</div>
+<h4 style="margin-top:.85rem">证据链推理</h4>
+<div class="evidence-chain">
+<div class="ev-step"><div class="ev-num">1</div><div class="ev-content"><div class="ev-title">数据：Datasheet完整参数 + 官网规格表 + 电商参数页</div><div class="ev-detail">来源：3源交叉验证 · 置信度 <span class="conf high"><span class="dot"></span>0.80</span> · 核心参数全部一致</div></div></div>
+<div class="ev-step"><div class="ev-num">2</div><div class="ev-content"><div class="ev-title">发现：GD32F103频率108MHz(+50%)但Flash相同；CH32F103频率144MHz(+100%)但外设较少</div><div class="ev-detail">来源：竞品Datasheet对比 · 置信度 <span class="conf high"><span class="dot"></span>0.72</span></div></div></div>
+<div class="ev-step"><div class="ev-num">3</div><div class="ev-content"><div class="ev-title">推论：ST以外设完整性和长期稳定性取胜，而非频率极限</div><div class="ev-detail">推理依据：参数对比 + 官网外设强调 + 论坛稳定性反馈 · 置信度 <span class="conf mid"><span class="dot"></span>0.62</span></div></div></div>
+<div class="ev-step"><div class="ev-num">4</div><div class="ev-content"><div class="ev-title">建议：竞品可主打"频率翻倍+外设完整"差异化，针对需要更高算力的场景</div><div class="ev-detail">策略依据：参数差异 + 市场需求分析 · 建议置信度 <span class="conf mid"><span class="dot"></span>0.58</span></div></div></div>
+
+<div class="callout success" style="margin-top:.6rem">
+<div class="label">💡 对易兆微的启示</div>
+<p style="font-size:.82rem"><strong>窗口期在杰理 AIoT 布局成熟之前：</strong>杰理正从“规模致胜”转向“生态锁定”，用上市资金加速 AIoT。易兆微应在 12-24 个月内抢占垂直行业 IoT 市场（POS/ETC/电子价签），以行业认证+本地服务建立壁垒，避免在杰理 AIoT 生态成型后正面竞争。</p>
+<p style="font-size:.7rem;color:var(--muted2);margin-top:.3rem">基于公开信息的 AI 推论，仅供参考</p>
+</div>
+</div>
+</div>
+
+<div id="v3-tab5" class="tab-panel">
+<div class="callout">
+<div class="label">LLM分析结论</div>
+<p style="font-size:.85rem"><strong>STM32F103的目标客户以工业控制(45%)、消费电子(25%)、通信设备(15%)三大领域为主。</strong>客户画像：中大型电子企业研发部门、有一定规模且对长期供货有要求的工业客户。非个人开发者和小批量用户（价格敏感型被推向国产替代）。</p>
+</div>
+<h4 style="margin-top:.85rem">证据链推理</h4>
+<div class="ev-step"><div class="ev-num">1</div><div class="ev-content"><div class="ev-title">数据：官网应用案例12个 / 行业报道中客户类型分析</div><div class="ev-detail">来源：官网<span class="src-cite">[ST.com]</span> · 置信度 <span class="conf low"><span class="dot"></span>0.30</span> · 仅1源</div></div></div>
+<div class="ev-step"><div class="ev-num">2</div><div class="ev-content"><div class="ev-title">发现：论坛讨论中，选择F103的用户多来自工控领域，关注"十年供货承诺"</div><div class="ev-detail">来源：论坛<span class="src-cite">[21ic]</span><span class="src-cite">[EEVblog]</span> · 置信度 <span class="conf low"><span class="dot"></span>0.35</span></div></div></div>
+<div class="ev-step"><div class="ev-num">3</div><div class="ev-content"><div class="ev-title">推论：F103的客户选择逻辑是"风险最小化"而非"成本最小化"</div><div class="ev-detail">推理依据：客户类型分析 + 论坛决策因素 · 置信度 <span class="conf low"><span class="dot"></span>0.35</span></div></div></div>
+<div class="ev-step"><div class="ev-num">4</div><div class="ev-content"><div class="ev-title">建议：竞品目标客户可切入中小型企业和初创公司，主打"性能足够+成本更优"</div><div class="ev-detail">策略依据：客户画像空白分析 · 建议置信度 <span class="conf low"><span class="dot"></span>0.38</span></div></div></div>
+</div>
+
+<div class="callout warn" style="margin-top:1rem">
+<div class="label">结论自检报告</div>
+<p style="font-size:.82rem"><strong>自检结果：</strong>6个维度共24条结论，其中21条通过验证（引用数据均真实存在于数据包中），3条标记异常：</p>
+<ul style="font-size:.8rem;margin-top:.4rem">
+<li>✓ 产品定位维度：4条结论全部通过 · 证据链完整</li>
+<li>✓ 价格策略维度：4条结论全部通过 · 冲突数据已标注</li>
+<li>⚠ 传播话术维度：1条结论引用的"87次robust"无法在数据包中定位原始位置 → <mark class="k">已降级为"约80+次"</mark></li>
+<li>✓ 技术参数维度：4条结论全部通过 · 3源交叉验证</li>
+<li>⚠ 目标客户维度：置信度整体偏低(0.30-0.38) → 报告中标注"该维度数据不足，结论仅供参考"</li>
+</ul>
+<button class="btn btn-primary btn-sm" style="margin-top:.5rem" onclick="goSection('sec-8')">✓ 确认自检结果，生成报告 →</button>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+<h3>页面布局</h3>
+<p>分析页面分为四个区域：维度标签栏（6个营销维度Tab切换，每个维度显示LLM分析结论）、证据链展示区（4层推理链：数据→发现→推论→建议，每层附带引用来源和置信度）、结论自检报告区（自动验证每条结论的引用数据是否真实存在、结论与数据是否矛盾）、整体分析质量概览（各维度置信度分布、异常标记数、通过率）。</p>
+
+<h3>业务逻辑</h3>
+<ol>
+<li><strong>6维度并行分析：</strong>Agent按"产品定位、价格策略、渠道策略、传播话术、技术参数、目标客户"6个营销维度，分别调用LLM进行结构化分析。每次调用包含：校验后数据包（该维度相关数据）、分析框架prompt、输出格式要求（结论+证据链+置信度自评）。</li>
+<li><strong>证据链推理结构：</strong>LLM输出必须包含4层推理链：①数据（引用数据包中的具体值+来源）→ ②发现（跨来源/跨竞品的对比发现）→ ③推论（基于发现的逻辑推演）→ ④建议（可操作的竞品营销建议）。每层标注引用的数据点和置信度。</li>
+<li><strong>结论自检机制：</strong>LLM输出后，系统逆向验证：提取每条结论中引用的数据点，在数据包中检索是否存在该值；检查结论与数据是否逻辑一致（如"价格高"结论对应的数据确实高于竞品）。验证失败的结论自动降级处理或标记异常。</li>
+<li><strong>置信度继承：</strong>结论的置信度 = min(支撑证据链中各数据点的置信度)。即如果推理链中有任何一个数据点置信度为"低"，该结论的置信度上限为"低"。这确保了"垃圾进垃圾出"的防线。</li>
+<li><strong>降级处理：</strong>置信度<0.4的结论在报告中灰色展示并标注"基于有限数据的推测，建议补充验证"。完全无数据的维度跳过LLM推理，显示"数据不足，无法分析"占位。</li>
+</ol>
+
+<h3>边界与异常</h3>
+<ul>
+<li><strong>LLM幻觉防护：</strong>自检环节检测到LLM引用了数据包中不存在的数据（幻觉），该结论自动标记为"验证失败"，不展示或降级为"待验证"</li>
+<li><strong>推理矛盾检测：</strong>同一维度内如果两条结论逻辑矛盾（如"目标客户是大企业"和"主打个人开发者"），系统标记"内部矛盾"并要求LLM重新推理</li>
+<li><strong>LLM超时降级：</strong>单维度LLM分析超过60秒，该维度降级为纯数据展示模式（仅展示数据表格+置信度，不生成AI推论），标注"AI分析暂不可用"</li>
+</ul>
+
+<!-- ==================== 功能模块4 ==================== -->
+<h2 id="sec-8"><span class="num">08</span> 功能模块：可视化报告生成</h2>
+<span class="tag must">MUST</span> <span class="tag new">v2新增</span>
+
+<div class="proto">
+<div class="proto-header">
+<div class="title">交互原型 — 可视化报告（6种图表 + 证据链展开 + 一键导出）</div>
+<div class="badge">点击可交互</div>
+</div>
+<div class="proto-body">
+<div class="proto-note"><b>操作提示：</b>报告包含6种可视化图表，点击图表中的数据点可查看证据来源，点击"导出报告"生成完整HTML报告。</div>
+
+<div class="app-shell">
+<div class="app-topbar">
+<span class="logo">ChipIntel Agent</span>
+<div class="nav"><span>采集</span><span>校验</span><span>分析</span><span class="active">报告</span><span>溯源</span></div>
+</div>
+<div style="padding:1rem">
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.85rem;flex-wrap:wrap;gap:.5rem">
+<div>
+<span style="font-size:.9rem;font-weight:700">STM32F103 竞品营销分析报告</span>
+<span style="font-size:.72rem;color:var(--muted);margin-left:.5rem">生成于 2026-08-13 18:42</span>
+</div>
+<div style="display:flex;gap:.4rem">
+<button class="btn btn-outline btn-sm" onclick="v4Export('html')">导出HTML</button>
+<button class="btn btn-outline btn-sm" onclick="v4Export('pdf')">导出PDF</button>
+<button class="btn btn-primary btn-sm" onclick="v4Export('json')">导出数据</button>
+</div>
+</div>
+
+<div class="dash-stats">
+<div class="stat-card"><div class="lbl">整体置信度</div><div class="val">0.62</div><div style="font-size:.72rem;color:var(--warn)">中等</div></div>
+<div class="stat-card"><div class="lbl">数据来源</div><div class="val">6</div><div style="font-size:.72rem;color:var(--muted)">5成功/1部分</div></div>
+<div class="stat-card"><div class="lbl">结论通过率</div><div class="val">88%</div><div style="font-size:.72rem;color:var(--success)">21/24条</div></div>
+</div>
+
+<h4 style="margin-top:1rem">图表1：竞品定位散点图</h4>
+<p style="font-size:.78rem;color:var(--muted)">X轴=性能（主频×Flash） · Y轴=价格 · 气泡大小=生态丰富度</p>
+<div class="scatter-wrap" id="v4-scatter">
+<div class="scatter-dot" style="left:55%;top:35%;background:var(--accent);width:30px;height:30px" title="STM32F103"><div class="lbl" style="font-weight:700">STM32F103<br><span style="font-size:.6rem">¥8.5 · 72MHz</span></div></div>
+<div class="scatter-dot" style="left:72%;top:20%;background:var(--danger);width:22px;height:22px" title="GD32F103"><div class="lbl">GD32F103<br><span style="font-size:.6rem">¥5.2 · 108MHz</span></div></div>
+<div class="scatter-dot" style="left:85%;top:12%;background:var(--warn);width:16px;height:16px" title="CH32F103"><div class="lbl">CH32F103<br><span style="font-size:.6rem">¥4.8 · 144MHz</span></div></div>
+<div class="scatter-dot" style="left:62%;top:28%;background:#6c5ce7;width:20px;height:20px" title="AT32F403A"><div class="lbl">AT32F403A<br><span style="font-size:.6rem">¥6.8 · 240MHz</span></div></div>
+<div style="position:absolute;left:8px;top:8px;font-size:.65rem;color:var(--muted)">↑ 高价</div>
+<div style="position:absolute;left:8px;bottom:8px;font-size:.65rem;color:var(--muted)">↓ 低价</div>
+<div style="position:absolute;right:8px;bottom:8px;font-size:.65rem;color:var(--muted)">高性能 →</div>
+</div>
+<p style="font-size:.72rem;color:var(--muted);margin-top:.3rem">💡 点击数据点查看来源证据 · STM32F103处于"中高性能+中高价格"区域，国产竞品集中在"高性能+低价格"区域</p><button class="btn btn-outline btn-sm no-print" style="margin-top:.45rem" onclick="v4ChartEvidence(1)">🔗 查看图表1证据</button>
+
+<h4 style="margin-top:1rem">图表2：价格对比柱状图</h4>
+<div class="bar-chart" style="height:140px">
+<div class="bar-col"><div class="bar" style="height:85%;background:var(--accent)"><span class="val">¥8.50</span></div><div class="lbl">STM32F103</div></div>
+<div class="bar-col"><div class="bar" style="height:92%;background:#0a3a5c"><span class="val">¥9.20</span></div><div class="lbl">得捷价</div></div>
+<div class="bar-col"><div class="bar" style="height:68%;background:#6c5ce7"><span class="val">¥6.80</span></div><div class="lbl">AT32F403A</div></div>
+<div class="bar-col"><div class="bar" style="height:52%;background:var(--danger)"><span class="val">¥5.20</span></div><div class="lbl">GD32F103</div></div>
+<div class="bar-col"><div class="bar" style="height:48%;background:var(--warn)"><span class="val">¥4.80</span></div><div class="lbl">CH32F103</div></div>
+</div>
+<p style="font-size:.72rem;color:var(--muted);margin-top:.3rem"><span class="src-cite">[立创]</span> <span class="src-cite">[得捷]</span> 数据来源 · ⚠ STM32F103价格3源冲突，显示区间值</p><button class="btn btn-outline btn-sm no-print" style="margin-top:.45rem" onclick="v4ChartEvidence(2)">🔗 查看图表2证据</button>
+
+<h4 style="margin-top:1rem">图表3：渠道能力雷达图</h4>
+<div class="radar-wrap">
+<div class="radar">
+<svg viewBox="0 0 200 200">
+<polygon points="100,20 175,65 160,150 40,150 25,65" fill="none" stroke="#e2e8f0" stroke-width="1"/>
+<polygon points="100,40 155,70 145,140 55,140 45,70" fill="none" stroke="#e2e8f0" stroke-width="1"/>
+<polygon points="100,60 135,75 130,130 70,130 65,75" fill="none" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="100" y1="100" x2="100" y2="20" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="100" y1="100" x2="175" y2="65" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="100" y1="100" x2="160" y2="150" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="100" y1="100" x2="40" y2="150" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="100" y1="100" x2="25" y2="65" stroke="#e2e8f0" stroke-width="1"/>
+<polygon points="100,25 170,60 150,145 50,140 35,68" fill="rgba(15,76,117,0.15)" stroke="#0f4c75" stroke-width="2"/>
+<polygon points="100,55 145,75 135,135 65,130 60,75" fill="rgba(229,62,62,0.1)" stroke="#e53e3e" stroke-width="2" stroke-dasharray="4"/>
+<text x="100" y="14" text-anchor="middle" font-size="9" fill="#64748b">代理覆盖</text>
+<text x="185" y="60" font-size="9" fill="#64748b">价格管控</text>
+<text x="165" y="165" font-size="9" fill="#64748b">供货稳定</text>
+<text x="20" y="165" font-size="9" fill="#64748b">技术支持</text>
+<text x="15" y="60" font-size="9" fill="#64748b">生态丰富</text>
+<text x="100" y="105" text-anchor="middle" font-size="8" fill="#0f4c75" font-weight="bold">STM32</text>
+</svg>
+</div>
+</div>
+<p style="font-size:.72rem;color:var(--muted);text-align:center">— STM32F103 &nbsp; - - 国产均值 &nbsp; 数据来源：官网+电商+论坛 <span class="src-cite">[多源]</span></p><button class="btn btn-outline btn-sm no-print" style="margin-top:.45rem" onclick="v4ChartEvidence(3)">🔗 查看图表3证据</button>
+
+<h4 style="margin-top:1rem">图表4：数据覆盖热力图</h4>
+<div class="heatmap" style="grid-template-columns:100px repeat(6,1fr)">
+<div class="hm-head"></div>
+<div class="hm-head">官网 ★5</div><div class="hm-head">DS ★5</div><div class="hm-head">电商 ★4</div><div class="hm-head">新闻 ★3</div><div class="hm-head">论坛 ★2</div><div class="hm-head">社交 ★1</div>
+
+<div class="hm-row-head">产品定位</div>
+<div class="hm-cell hm-h">✓ 0.80</div><div class="hm-cell hm-h">✓ 0.80</div><div class="hm-cell hm-n">—</div><div class="hm-cell hm-m">✓ 0.48</div><div class="hm-cell hm-n">—</div><div class="hm-cell hm-n">—</div>
+<div class="hm-row-head">价格策略</div>
+<div class="hm-cell hm-n">—</div><div class="hm-cell hm-n">—</div><div class="hm-cell hm-m">⚠ 0.38</div><div class="hm-cell hm-m">✓ 0.48</div><div class="hm-cell hm-n">—</div><div class="hm-cell hm-n">—</div>
+<div class="hm-row-head">渠道策略</div>
+<div class="hm-cell hm-m">✓ 0.48</div><div class="hm-cell hm-n">—</div><div class="hm-cell hm-m">✓ 0.52</div><div class="hm-cell hm-m">✓ 0.48</div><div class="hm-cell hm-n">—</div><div class="hm-cell hm-n">—</div>
+<div class="hm-row-head">传播话术</div>
+<div class="hm-cell hm-m">✓ 0.55</div><div class="hm-cell hm-n">—</div><div class="hm-cell hm-n">—</div><div class="hm-cell hm-m">✓ 0.50</div><div class="hm-cell hm-l">✓ 0.35</div><div class="hm-cell hm-l">✓ 0.30</div>
+<div class="hm-row-head">技术参数</div>
+<div class="hm-cell hm-h">✓ 0.80</div><div class="hm-cell hm-h">✓ 0.80</div><div class="hm-cell hm-h">✓ 0.72</div><div class="hm-cell hm-n">—</div><div class="hm-cell hm-n">—</div><div class="hm-cell hm-n">—</div>
+<div class="hm-row-head">目标客户</div>
+<div class="hm-cell hm-l">✓ 0.30</div><div class="hm-cell hm-n">—</div><div class="hm-cell hm-n">—</div><div class="hm-cell hm-l">✓ 0.35</div><div class="hm-cell hm-l">✓ 0.35</div><div class="hm-cell hm-n">—</div>
+</div>
+<p style="font-size:.72rem;color:var(--muted);margin-top:.3rem"><span class="hm-cell hm-h" style="display:inline;padding:1px 4px">高</span> ≥0.6 &nbsp; <span class="hm-cell hm-m" style="display:inline;padding:1px 4px">中</span> 0.4-0.59 &nbsp; <span class="hm-cell hm-l" style="display:inline;padding:1px 4px">低</span> <0.4 &nbsp; <span class="hm-cell hm-n" style="display:inline;padding:1px 4px">—</span> 无数据</p><button class="btn btn-outline btn-sm no-print" style="margin-top:.45rem" onclick="v4ChartEvidence(4)">🔗 查看图表4证据</button>
+
+<h4 style="margin-top:1rem">图表5：置信度分布图</h4>
+<div class="bar-chart" style="height:100px">
+<div class="bar-col"><div class="bar" style="height:40%;background:var(--success)"><span class="val">9</span></div><div class="lbl">高 ≥0.8</div></div>
+<div class="bar-col"><div class="bar" style="height:55%;background:var(--warn)"><span class="val">14</span></div><div class="lbl">中 0.5-0.79</div></div>
+<div class="bar-col"><div class="bar" style="height:35%;background:var(--danger)"><span class="val">8</span></div><div class="lbl">低 0.3-0.49</div></div>
+<div class="bar-col"><div class="bar" style="height:20%;background:var(--muted)"><span class="val">3</span></div><div class="lbl">不足 <0.3</div></div>
+</div>
+<p style="font-size:.72rem;color:var(--muted);margin-top:.3rem">共34个数据点 · 中高置信度占比68% · 低置信度数据点已标注"建议补充验证"</p><button class="btn btn-outline btn-sm no-print" style="margin-top:.45rem" onclick="v4ChartEvidence(5)">🔗 查看图表5证据</button>
+
+<h4 style="margin-top:1rem">图表6：传播话术对比矩阵</h4>
+<div class="tbl-wrap">
+<table class="rpt-table" style="font-size:.78rem">
+<tr><th>品牌</th><th>核心话术1</th><th>核心话术2</th><th>核心话术3</th><th>传播策略</th></tr>
+<tr><td><b>STM32F103</b></td><td>Robust 可靠</td><td>Ecosystem 生态</td><td>Long-term 长期供货</td><td><span class="chip blue">降低决策风险</span></td></tr>
+<tr><td><b>GD32F103</b></td><td>兼容ST</td><td>Higher Performance</td><td>Cost-effective</td><td><span class="chip green">性能兼容替代</span></td></tr>
+<tr><td><b>CH32F103</b></td><td>极致性价比</td><td>Pin-to-Pin</td><td>国产自主</td><td><span class="chip red">价格驱动替代</span></td></tr>
+<tr><td><b>AT32F403A</b></td><td>超高主频</td><td>丰富外设</td><td>本地化服务</td><td><span class="chip blue">性能差异化</span></td></tr>
+</table>
+</div>
+<p style="font-size:.72rem;color:var(--muted);margin-top:.3rem">话术来源：各品牌官网关键词分析 <span class="src-cite">[官网]</span> + 行业媒体报道 <span class="src-cite">[媒体]</span> · 置信度 <span class="conf mid"><span class="dot"></span>0.55</span></p><button class="btn btn-outline btn-sm no-print" style="margin-top:.45rem" onclick="v4ChartEvidence(6)">🔗 查看图表6证据</button>
+
+<div class="callout success" style="margin-top:1rem">
+<div class="label">报告生成完成</div>
+<p style="font-size:.82rem">报告包含6种可视化图表、24条分析结论（21条通过验证）、34个数据点（含来源URL和置信度）。所有结论均可通过证据链追溯至原始数据源。</p>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+<h3>页面布局</h3>
+<p>报告页面分为五个区域：报告头部区（报告标题、生成时间、整体置信度/来源数/通过率3个指标卡片、导出按钮组）、可视化图表区（6种图表垂直排列：散点定位图、价格柱状图、渠道雷达图、数据覆盖热力图、置信度分布图、话术对比矩阵）、证据链展开区（每个图表下方可展开查看该图表数据的来源和推理链）、分析结论区（6维度分析结论的文字版，每条结论附置信度标识和"查看证据"链接）、报告底部区（生成时间戳、Agent版本号、数据源完整列表）。</p>
+
+<h3>6种可视化图表说明</h3>
+<div class="tbl-wrap">
+<table>
+<tr><th>图表</th><th>类型</th><th>展示内容</th><th>数据来源</th><th>交互</th></tr>
+<tr><td>竞品定位散点图</td><td>气泡散点</td><td>X=性能 Y=价格 气泡=生态</td><td>技术参数+电商报价</td><td>点击气泡查看详情</td></tr>
+<tr><td>价格对比柱状图</td><td>柱状</td><td>各竞品参考价对比</td><td>电商平台报价</td><td>悬停显示来源</td></tr>
+<tr><td>渠道能力雷达图</td><td>雷达</td><td>5维度：代理/价格/供货/支持/生态</td><td>官网+电商+论坛</td><td>切换竞品叠加</td></tr>
+<tr><td>数据覆盖热力图</td><td>热力矩阵</td><td>6维度×6来源的覆盖率+置信度</td><td>采集+校验数据</td><td>点击单元格查看数据点</td></tr>
+<tr><td>置信度分布图</td><td>柱状</td><td>高/中/低/不足4级分布</td><td>校验结果</td><td>点击查看该等级数据点</td></tr>
+<tr><td>话术对比矩阵</td><td>表格</td><td>各竞品核心话术+传播策略</td><td>官网+媒体报道</td><td>点击话术查看原文</td></tr>
+</table>
+</div>
+
+<h3>业务逻辑</h3>
+<ol>
+<li><strong>报告组装：</strong>Agent将校验后数据包、6维度分析结果、证据链、自检报告按报告模板组装。每个图表的数据点绑定来源URL和置信度，用户点击可展开查看。</li>
+<li><strong>证据链嵌入：</strong>报告中的每个数据点、每条结论都内嵌证据链展开器。用户点击"查看证据"按钮，展开该结论的4层推理链（数据→发现→推论→建议），每层显示引用的数据值和来源链接。</li>
+<li><strong>置信度可视化：</strong>报告中的数据点和结论通过颜色编码展示置信度等级（绿色=高、黄色=中、红色=低、灰色=不足）。低置信度数据点附带"建议补充验证"提示。</li>
+<li><strong>多格式导出：</strong>支持HTML（含全部交互）、PDF（静态版，适合打印/分享）、JSON（结构化数据，含全部数据点和证据链，可二次开发）。导出文件名格式：<code>ChipIntel_芯片型号_YYYYMMDD</code>。</li>
+<li><strong>冲突透明展示：</strong>存在来源冲突的数据点在报告中以特殊样式展示：主值+区间值+冲突标注，不隐藏任何来源的值。用户可自行判断数据可靠性。</li>
+</ol>
+
+<h3>边界与异常</h3>
+<ul>
+<li><strong>图表数据不足：</strong>某图表所需数据点<3个时，该图表区域显示"数据不足，无法生成图表"占位框，不渲染残缺图表</li>
+<li><strong>导出超时：</strong>PDF导出超过30秒，提示用户"报告内容较多，正在生成中"，后台完成后通知下载</li>
+<li><strong>数据过期提醒：</strong>报告中包含数据采集时间戳，如果报告查看时间距采集时间超过30天，页面顶部显示"数据可能已过期，建议重新采集"提示</li>
+</ul>
+
+<!-- ==================== 功能模块5 ==================== -->
+<h2 id="sec-9"><span class="num">09</span> 功能模块：数据溯源中心</h2>
+<span class="tag must">MUST</span> <span class="tag new">v2新增</span> <span class="tag ai">信任核心</span>
+
+<div class="proto">
+<div class="proto-header">
+<div class="title">交互原型 — 数据溯源中心（全链路追溯 + 来源验证 + 冲突历史）</div>
+<div class="badge">点击可交互</div>
+</div>
+<div class="proto-body">
+<div class="proto-note"><b>操作提示：</b>查看所有数据源的完整列表，点击任意结论跳转到其证据链溯源页面，查看冲突数据的处理历史。</div>
+
+<div class="app-shell">
+<div class="app-topbar">
+<span class="logo">ChipIntel Agent</span>
+<div class="nav"><span>采集</span><span>校验</span><span>分析</span><span>报告</span><span class="active">溯源</span></div>
+</div>
+<div style="padding:1rem">
+
+<div class="dash-stats">
+<div class="stat-card"><div class="lbl">数据源总数</div><div class="val">47</div><div style="font-size:.72rem;color:var(--muted)">含URL+时间戳</div></div>
+<div class="stat-card"><div class="lbl">可追溯结论</div><div class="val">100%</div><div style="font-size:.72rem;color:var(--success)">24/24条</div></div>
+<div class="stat-card"><div class="lbl">冲突处理记录</div><div class="val">3</div><div style="font-size:.72rem;color:var(--warn)">已透明标注</div></div>
+</div>
+
+<h4 style="margin-top:1rem">完整数据源列表</h4>
+<div class="tbl-wrap" style="max-height:300px">
+<table style="font-size:.76rem;min-width:600px">
+<tr><th>#</th><th>来源类型</th><th>来源名称</th><th>可信度</th><th>采集时间</th><th>数据条数</th><th>验证状态</th></tr>
+<tr><td>1</td><td><span class="chip blue">官网 ★★★★★</span></td><td><a href="#" style="color:var(--accent2)">st.com/STM32F103</a></td><td><span class="cred"><span class="s">★★★★★</span></span></td><td>2026-08-13 18:35</td><td>8</td><td><span class="chip green">已验证</span></td></tr>
+<tr><td>2</td><td><span class="chip blue">Datasheet ★★★★★</span></td><td><a href="#" style="color:var(--accent2)">ST DS5319.pdf</a></td><td><span class="cred"><span class="s">★★★★★</span></span></td><td>2026-08-13 18:36</td><td>12</td><td><span class="chip green">已验证</span></td></tr>
+<tr><td>3</td><td><span class="chip green">电商 ★★★★</span></td><td><a href="#" style="color:var(--accent2)">立创商城 STM32F103</a></td><td><span class="cred"><span class="s">★★★★</span><span class="e">★</span></span></td><td>2026-08-13 18:37</td><td>6</td><td><span class="chip green">已验证</span></td></tr>
+<tr><td>4</td><td><span class="chip green">电商 ★★★★</span></td><td><a href="#" style="color:var(--accent2)">得捷 STM32F103</a></td><td><span class="cred"><span class="s">★★★★</span><span class="e">★</span></span></td><td>2026-08-13 18:37</td><td>5</td><td><span class="chip red">价格冲突</span></td></tr>
+<tr><td>5</td><td><span class="chip gray">新闻 ★★★</span></td><td><a href="#" style="color:var(--accent2)">半导体行业观察</a></td><td><span class="cred"><span class="s">★★★</span><span class="e">★★</span></span></td><td>2026-08-13 18:38</td><td>7</td><td><span class="chip green">已验证</span></td></tr>
+<tr><td>6</td><td><span class="chip gray">论坛 ★★</span></td><td><a href="#" style="color:var(--accent2)">21ic电子网论坛</a></td><td><span class="cred"><span class="s">★★</span><span class="e">★★★</span></span></td><td>2026-08-13 18:39</td><td>5</td><td><span class="chip green">已验证</span></td></tr>
+<tr><td>7</td><td><span class="chip gray">论坛 ★★</span></td><td><a href="#" style="color:var(--accent2)">EEVblog Forum</a></td><td><span class="cred"><span class="s">★★</span><span class="e">★★★</span></span></td><td>2026-08-13 18:39</td><td>3</td><td><span class="chip green">已验证</span></td></tr>
+<tr><td>8</td><td><span class="chip red">社交 ★</span></td><td><a href="#" style="color:var(--accent2)">微博 @半导体老兵</a></td><td><span class="cred"><span class="s">★</span><span class="e">★★★★</span></span></td><td>2026-08-13 18:40</td><td>1</td><td><span class="chip gray">数据不足</span></td></tr>
+</table>
+</div>
+
+<h4 style="margin-top:1rem">结论溯源索引</h4>
+<p style="font-size:.8rem;color:var(--muted)">报告中的每条结论均可通过以下索引追溯至原始数据源。点击任意结论查看完整证据链。</p>
+<div class="tbl-wrap">
+<table style="font-size:.76rem">
+<tr><th>维度</th><th>结论摘要</th><th>置信度</th><th>引用数据点</th><th>来源数</th><th>溯源操作</th></tr>
+<tr><td>产品定位</td><td>高性能主流MCU，主打工业控制</td><td><span class="conf high"><span class="dot"></span>0.80</span></td><td>主频/内核/Flash</td><td>3</td><td><span class="src-cite" onclick="v5Evidence('产品定位')">[查看证据]</span></td></tr>
+<tr><td>价格策略</td><td>品牌溢价，价差40-45%</td><td><span class="conf mid"><span class="dot"></span>0.38</span></td><td>4品牌报价</td><td>3</td><td><span class="src-cite" onclick="v5Evidence('价格策略')">[查看证据]</span></td></tr>
+<tr><td>渠道策略</td><td>授权代理+官方直营双轨</td><td><span class="conf mid"><span class="dot"></span>0.48</span></td><td>代理列表/价格对比</td><td>2</td><td><span class="src-cite" onclick="v5Evidence('渠道策略')">[查看证据]</span></td></tr>
+<tr><td>传播话术</td><td>可靠性+生态+长期供货</td><td><span class="conf mid"><span class="dot"></span>0.55</span></td><td>关键词频次/话术提取</td><td>2</td><td><span class="src-cite" onclick="v5Evidence('传播话术')">[查看证据]</span></td></tr>
+<tr><td>技术参数</td><td>外设丰富度为核心竞争力</td><td><span class="conf high"><span class="dot"></span>0.72</span></td><td>完整参数对比</td><td>3</td><td><span class="src-cite" onclick="v5Evidence('技术参数')">[查看证据]</span></td></tr>
+<tr><td>目标客户</td><td>工业控制为主(45%)</td><td><span class="conf low"><span class="dot"></span>0.30</span></td><td>应用案例/论坛讨论</td><td>1</td><td><span class="src-cite" onclick="v5Evidence('目标客户')">[查看证据]</span></td></tr>
+</table>
+</div>
+
+<h4 style="margin-top:1rem">冲突处理历史</h4>
+<div class="callout warn">
+<div class="label">冲突记录 #1 — 参考价</div>
+<p style="font-size:.8rem"><strong>冲突描述：</strong>STM32F103参考价，3个来源不一致：立创¥8.50、得捷¥9.20、行业新闻¥8.80</p>
+<p style="font-size:.8rem"><strong>处理策略：</strong>保留全部3个值，以立创（授权电商★4，新鲜度1.0）为基准值</p>
+<p style="font-size:.8rem"><strong>报告展示：</strong>价格区间"¥8.50-9.20"，标注"3源冲突，已保留全部值"</p>
+<p style="font-size:.8rem"><strong>用户可见：</strong>✓ 透明展示全部来源值 ✓ 用户可自行判断 ✓ 冲突不掩盖</p>
+</div>
+
+<div class="callout success" style="margin-top:.6rem">
+<div class="label">溯源验证</div>
+<p style="font-size:.82rem">所有24条分析结论均已建立完整溯源链。用户从任意结论出发，可通过4层证据链（数据→发现→推论→建议）逐层追溯至原始数据源（含URL、采集时间、来源类型、置信度）。溯源率100%，无黑箱结论。</p>
+<div class="no-print" style="margin-top:.5rem">
+<button class="btn btn-primary btn-sm" onclick="v5Integrity()">🔍 运行完整性校验</button>
+<div id="v5-integrity" style="margin-top:.5rem;font-size:.8rem"></div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+<h3>页面布局</h3>
+<p>溯源页面分为四个区域：统计概览区（数据源总数、可追溯结论数、冲突处理记录数3个指标卡片）、完整数据源列表区（按来源类型分组，每行显示来源名称（可点击URL）、可信度星级、采集时间、数据条数、验证状态）、结论溯源索引区（报告中所有结论的索引表，每行显示维度、结论摘要、置信度、引用数据点数、来源数、"查看证据"按钮）、冲突处理历史区（所有存在冲突的数据点的处理记录，透明展示冲突描述、处理策略、报告展示方式）。</p>
+
+<h3>业务逻辑</h3>
+<ol>
+<li><strong>全链路溯源：</strong>报告中每个数据点、每条结论都绑定唯一ID。用户从任意结论点击"查看证据"，系统通过ID索引展示完整的4层证据链，每层显示引用的具体数据值、来源URL（可点击访问原始页面）、采集时间、置信度。</li>
+<li><strong>来源验证：</strong>溯源页面列出所有数据源的完整清单，包括来源URL（可点击验证）、来源类型、可信度权重、采集时间、数据条数。用户可自行访问原始来源页面验证数据准确性。</li>
+<li><strong>冲突透明化：</strong>所有存在来源冲突的数据点在溯源页面有独立的冲突处理记录，详细记录冲突描述、Agent处理策略、最终展示方式。用户可看到Agent如何处理冲突，而非黑箱处理。</li>
+<li><strong>时间线追溯：</strong>每条数据记录采集时间戳和原始发布时间。溯源页面可按时间排序查看数据的时效性，过时数据（>180天）自动标注"数据较旧"。</li>
+<li><strong>数据完整性校验：</strong>溯源页面提供"完整性校验"功能，一键验证报告中所有结论的引用数据是否都存在于数据包中、是否存在"幻觉引用"。校验结果以通过率展示。</li>
+</ol>
+
+<h3>边界与异常</h3>
+<ul>
+<li><strong>来源URL失效：</strong>原始来源页面已删除或改版，URL无法访问。溯源页面标注"来源URL已失效，采集时的页面快照可通过缓存查看"</li>
+<li><strong>溯源链断裂：</strong>自检环节发现某结论的证据链不完整（如缺少"发现"环节），该结论标记"证据链不完整"，在溯源页面以红色标注</li>
+</ul>
+
+<!-- ==================== 功能模块6（v3新增） ==================== -->
+<h2 id="sec-10"><span class="num">10</span> 功能模块：公司级竞品分析引擎</h2>
+<span class="tag must">MUST</span> <span class="tag new">v3新增</span> <span class="tag ai">Agent核心</span>
+
+<div class="callout">
+<div class="label">核心理念：友商才是最好的老师</div>
+<p style="font-size:.85rem">输入一家友商公司名称（如"杰理科技"），Agent自动完成该公司全貌分析：<strong>产品布局矩阵 → 市场信息画像 → 战略布局解读 → 未来趋势预判</strong>。不再是单颗芯片的参数对比，而是从公司层面理解竞争对手"在做什么、为什么这么做、接下来会做什么"。</p>
+</div>
+
+<div class="proto">
+<div class="proto-header">
+<div class="title">交互原型 — 公司级竞品分析（产品布局+市场信息+战略布局+趋势预判）</div>
+<div class="badge">点击可交互</div>
+</div>
+<div class="proto-body">
+<div class="proto-note"><b>操作提示：</b>输入友商公司名称，点击"启动公司分析"，观察Agent自动采集公司全貌信息，生成4大维度分析报告。以杰理科技为示例。</div>
+
+<div class="app-shell">
+<div class="app-topbar">
+<span class="logo">ChipIntel Agent</span>
+<div class="nav"><span class="active">公司分析</span><span>芯片分析</span><span>校验</span><span>报告</span><span>溯源</span></div>
+</div>
+<div style="padding:1rem">
+
+<div class="field">
+<label>输入友商公司名称（Agent将自动识别并分析该公司全貌）</label>
+<input type="text" id="v3-compInput" placeholder="例如：杰理科技、中科蓝讯、恒玄科技、泰凌微" value="杰理科技">
+</div>
+
+<div style="display:flex;gap:.5rem;margin-bottom:.85rem">
+<button class="btn btn-primary" id="v3-compBtn" onclick="v3StartCompAnalysis()">启动公司分析</button>
+<select class="field" style="width:auto;max-width:160px" id="v3-compSelect">
+<option value="jieli">杰理科技</option>
+<option value="bluetrum">中科蓝讯</option>
+<option value="bes">恒玄科技</option>
+<option value="telink">泰凌微电子</option>
+<option value="airoha">络达(联发科系)</option>
+<option value="qualcomm">高通</option>
+</select>
+</div>
+
+<div id="v3-compResult" style="display:none">
+
+<div class="progress-steps" id="v3-compSteps">
+<div class="pstep pending"><div class="icon">1</div><div>采集公司官网产品矩阵 <span class="detail">来源 ★★★★★ · 预计3s</span></div></div>
+<div class="pstep pending"><div class="icon">2</div><div>采集行业报告与市场数据 <span class="detail">来源 ★★★★ · 预计4s</span></div></div>
+<div class="pstep pending"><div class="icon">3</div><div>采集投融资/专利/人才信息 <span class="detail">来源 ★★★ · 预计3s</span></div></div>
+<div class="pstep pending"><div class="icon">4</div><div>采集电商报价与出货信息 <span class="detail">来源 ★★★★ · 预计2s</span></div></div>
+<div class="pstep pending"><div class="icon">5</div><div>交叉校验+置信度评分 <span class="detail">Agent自检 · 预计2s</span></div></div>
+</div>
+
+<div id="v3-compPreview" style="display:none">
+
+<div class="dash-stats">
+<div class="stat-card"><div class="lbl">数据条目</div><div class="val">86</div><div style="font-size:.72rem;color:var(--muted)">含来源URL</div></div>
+<div class="stat-card"><div class="lbl">整体置信度</div><div class="val">0.71</div><div style="font-size:.72rem;color:var(--success)">中高</div></div>
+<div class="stat-card"><div class="lbl">结论通过率</div><div class="val">92%</div><div style="font-size:.72rem;color:var(--success)">22/24条</div></div>
+</div>
+
+<div class="tabs" id="v3-compTabs">
+<div class="tab active" onclick="v3SwitchCompTab(0)">① 产品布局矩阵</div>
+<div class="tab" onclick="v3SwitchCompTab(1)">② 市场信息画像</div>
+<div class="tab" onclick="v3SwitchCompTab(2)">③ 战略布局解读</div>
+<div class="tab" onclick="v3SwitchCompTab(3)">④ 趋势预判</div>
+<div class="tab" onclick="v3SwitchCompTab(4)" style="color:var(--danger);font-weight:700">⑤ 客户图谱</div>
+</div>
+
+<div id="v3-ct0" class="tab-panel active">
+<h4>杰理科技 — 产品布局矩阵</h4>
+<p style="font-size:.82rem;color:var(--muted)">Agent从官网、行业报告、电商等6类来源采集到杰理科技5大产品线、28+款芯片型号。</p>
+<div class="tbl-wrap" style="max-height:320px">
+<table style="font-size:.76rem;min-width:650px">
+<tr><th>产品线</th><th>代表型号</th><th>蓝牙规格</th><th>目标应用</th><th>价格带</th><th>定位</th><th>置信度</th></tr>
+<tr><td rowspan="3"><b>TWS耳机芯片</b><br>（核心营收）</td><td>BT8912F</td><td>BT 5.3+LE</td><td>TWS耳机主控</td><td>¥1.5-2.5</td><td>性价比断层领先</td><td><span class="conf high"><span class="dot"></span>0.82</span></td></tr>
+<tr><td>AC700N系列</td><td>BT 5.2</td><td>中端TWS</td><td>¥2-3</td><td>白牌+品牌渗透</td><td><span class="conf high"><span class="dot"></span>0.75</span></td></tr>
+<tr><td>AW33N系列</td><td>BT 5.3</td><td>AIoT耳机</td><td>¥3-5</td><td>向高端延伸</td><td><span class="conf mid"><span class="dot"></span>0.58</span></td></tr>
+<tr><td rowspan="2"><b>蓝牙音箱芯片</b></td><td>AC200N系列</td><td>BT 5.0</td><td>中低端音箱</td><td>¥1-2</td><td>"价格屠刀"定位</td><td><span class="conf high"><span class="dot"></span>0.78</span></td></tr>
+<tr><td>AC800N系列</td><td>BT 5.2</td><td>中高端音箱</td><td>¥3-5</td><td>品牌音箱市场</td><td><span class="conf mid"><span class="dot"></span>0.60</span></td></tr>
+<tr><td rowspan="2"><b>AIoT芯片</b></td><td>AW31N系列</td><td>BT 5.2 BLE</td><td>智能家居/穿戴</td><td>¥2-4</td><td>IoT生态布局</td><td><span class="conf mid"><span class="dot"></span>0.55</span></td></tr>
+<tr><td>AW33N系列</td><td>BT 5.3+WiFi</td><td>AI语音交互</td><td>¥4-6</td><td>AI语音入口</td><td><span class="conf mid"><span class="dot"></span>0.52</span></td></tr>
+<tr><td rowspan="2"><b>MCU/外设</b></td><td>GP系列</td><td>—</td><td>通用MCU</td><td>¥0.5-2</td><td>泛消费电子</td><td><span class="conf mid"><span class="dot"></span>0.50</span></td></tr>
+<tr><td>充电管理IC</td><td>—</td><td>TWS充电仓</td><td>¥0.3-1</td><td>配套芯片</td><td><span class="conf low"><span class="dot"></span>0.38</span></td></tr>
+</table>
+</div>
+
+<div class="callout">
+<div class="label">产品布局解读</div>
+<p style="font-size:.82rem"><strong>杰理的产品战略：以TWS耳机芯片为核心营收引擎（全球市占率39.8%），向下以AC200N"价格屠刀"覆盖低端音箱市场，向上以AW33N向AIoT和AI语音延伸。</strong>产品线呈"金字塔"结构：底层量大价低（AC/GP系列），中层核心利润（BT8912F TWS），顶层战略卡位（AW33N AIoT）。</p>
+<p style="font-size:.78rem;color:var(--muted);margin-top:.3rem">证据来源：官网产品页<span class="src-cite">[杰理官网]</span> + 行业报告<span class="src-cite">[豆丁]</span> + 电商报价<span class="src-cite">[立创]</span> · 整体置信度 <span class="conf mid"><span class="dot"></span>0.68</span></p>
+</div>
+
+<div class="callout success" style="margin-top:.6rem">
+<div class="label">💡 对易兆微的启示</div>
+<p style="font-size:.82rem"><strong>避开 TWS/音箱正面价格战：</strong>杰理产品线金字塔已覆盖音频全价格带。易兆微差异化方向：①以<b>蓝牙数传（YC10XX）+安全芯片（YC3X）</b>组合切入 POS/ETC/电子价签等垂直行业；②音频线（YC11XX）聚焦细分场景（行业音频/辅听），不做白牌 TWS 正面竞争。</p>
+<p style="font-size:.7rem;color:var(--muted2);margin-top:.3rem">基于公开信息的 AI 推论，仅供参考</p>
+</div>
+</div>
+
+<div id="v3-ct1" class="tab-panel">
+<h4>杰理科技 — 市场信息画像</h4>
+<div class="tbl-wrap">
+<table style="font-size:.78rem">
+<tr><th>维度</th><th>数据</th><th>来源</th><th>置信度</th></tr>
+<tr><td><b>TWS芯片市占率</b></td><td>39.8%（全球第一）</td><td>行业报告 <span class="src-cite">[报告]</span></td><td><span class="conf high"><span class="dot"></span>0.82</span></td></tr>
+<tr><td><b>TWS芯片年出货</b></td><td>10.77亿颗（2025）</td><td>招股书+行业 <span class="src-cite">[招股书]</span></td><td><span class="conf high"><span class="dot"></span>0.85</span></td></tr>
+<tr><td><b>累计出货</b></td><td>57.36亿颗</td><td>公司公告 <span class="src-cite">[公告]</span></td><td><span class="conf high"><span class="dot"></span>0.80</span></td></tr>
+<tr><td><b>核心客户</b></td><td>白牌厂商为主，向小米/OPPO品牌渗透</td><td>行业分析 <span class="src-cite">[分析]</span></td><td><span class="conf mid"><span class="dot"></span>0.62</span></td></tr>
+<tr><td><b>价格策略</b></td><td>TWS芯片¥1.5-2.5，以价换量</td><td>电商+行业 <span class="src-cite">[电商]</span></td><td><span class="conf mid"><span class="dot"></span>0.58</span></td></tr>
+<tr><td><b>代工合作</b></td><td>台积电22nm ULP工艺</td><td>行业报告 <span class="src-cite">[报告]</span></td><td><span class="conf mid"><span class="dot"></span>0.55</span></td></tr>
+<tr><td><b>营收规模</b></td><td>约107.9亿元（2025）</td><td>招股书 <span class="src-cite">[招股书]</span></td><td><span class="conf high"><span class="dot"></span>0.78</span></td></tr>
+</table>
+</div>
+
+<div class="callout">
+<div class="label">市场定位解读</div>
+<p style="font-size:.82rem"><strong>杰理 = 蓝牙音频芯片的"联发科"：以极致性价比+规模化出货建立断层式领先。</strong>39.8%的全球TWS市占率意味着每10颗TWS耳机芯片中约4颗来自杰理。其核心壁垒不是技术领先（高通/恒玄在高端更强），而是"成本控制+出货规模+白牌生态"的三重飞轮。</p>
+</div>
+
+<div class="callout warn">
+<div class="label">对易兆微的启示</div>
+<p style="font-size:.82rem">易兆微在蓝牙音频（YC11XX）赛道直接面对杰理的碾压式竞争。差异化方向：①杰理强在音频SoC，易兆微可在<b>蓝牙数传+安全芯片</b>（YC10XX+YC3X）组合上避开正面战场；②杰理主打白牌，易兆微可聚焦<b>POS/ETC/电子价签</b>等垂直行业市场。</p>
+</div>
+</div>
+
+<div id="v3-ct2" class="tab-panel">
+<h4>杰理科技 — 战略布局解读</h4>
+<div class="tbl-wrap">
+<table style="font-size:.78rem">
+<tr><th>战略维度</th><th>杰理布局</th><th>信号解读</th><th>置信度</th></tr>
+<tr><td><b>技术路线</b></td><td>22nm ULP工艺+自研DSP</td><td>从28nm向22nm迁移，追求功耗极限</td><td><span class="conf mid"><span class="dot"></span>0.55</span></td></tr>
+<tr><td><b>产品延伸</b></td><td>TWS→音箱→AIoT→MCU</td><td>从音频主控向泛消费IC扩张</td><td><span class="conf high"><span class="dot"></span>0.72</span></td></tr>
+<tr><td><b>客户升级</b></td><td>白牌→品牌（小米/OPPO）</td><td>从"价格屠刀"向"品牌供应商"转型</td><td><span class="conf mid"><span class="dot"></span>0.62</span></td></tr>
+<tr><td><b>资本运作</b></td><td>2025年北交所上市</td><td>融资扩产，加速AIoT布局</td><td><span class="conf high"><span class="dot"></span>0.85</span></td></tr>
+<tr><td><b>生态建设</b></td><td>开发者社区+方案商网络</td><td>降低客户开发门槛，锁定生态</td><td><span class="conf mid"><span class="dot"></span>0.50</span></td></tr>
+<tr><td><b>专利布局</b></td><td>蓝牙协议栈/音频解码/低功耗</td><td>构建技术护城河</td><td><span class="conf low"><span class="dot"></span>0.38</span></td></tr>
+</table>
+</div>
+
+<div class="evidence-chain" style="margin-top:.85rem">
+<div class="ev-step"><div class="ev-num">1</div><div class="ev-content"><div class="ev-title">数据：杰理2025年北交所上市，融资规模超预期</div><div class="ev-detail">来源：招股书<span class="src-cite">[招股书]</span> + 财经媒体<span class="src-cite">[报道]</span> · 置信度 <span class="conf high"><span class="dot"></span>0.85</span></div></div></div>
+<div class="ev-step"><div class="ev-num">2</div><div class="ev-content"><div class="ev-title">发现：产品线从TWS向AIoT/MCU扩张，客户从白牌向品牌渗透</div><div class="ev-detail">来源：官网产品矩阵+行业分析 · 置信度 <span class="conf high"><span class="dot"></span>0.72</span></div></div></div>
+<div class="ev-step"><div class="ev-num">3</div><div class="ev-content"><div class="ev-title">推论：杰理战略从"规模致胜"向"生态锁定"转型，用上市资金加速AIoT布局</div><div class="ev-detail">推理依据：产品延伸+客户升级+资本运作三重信号 · 置信度 <span class="conf mid"><span class="dot"></span>0.62</span></div></div></div>
+<div class="ev-step"><div class="ev-num">4</div><div class="ev-content"><div class="ev-title">建议：易兆微应在杰理AIoT布局成熟前，抢占垂直行业IoT市场（POS/ETC/电子价签）</div><div class="ev-detail">策略依据：杰理AIoT尚在早期（置信度0.52），易兆微已有行业客户基础 · 建议置信度 <span class="conf mid"><span class="dot"></span>0.58</span></div></div></div>
+</div>
+</div>
+
+<div id="v3-ct3" class="tab-panel">
+<h4>杰理科技 — 未来趋势预判</h4>
+<div class="tbl-wrap">
+<table style="font-size:.78rem">
+<tr><th>趋势预判</th><th>信号依据</th><th>时间窗口</th><th>置信度</th><th>对易兆微影响</th></tr>
+<tr><td><b>1. TWS价格继续下探至¥1以下</b></td><td>AC200N已到¥1-2，规模效应持续</td><td>6-12个月</td><td><span class="conf mid"><span class="dot"></span>0.65</span></td><td>⚠ 音频赛道利润空间进一步压缩</td></tr>
+<tr><td><b>2. 向LE Audio全面迁移</b></td><td>BT8912F已支持5.3+LE</td><td>12-18个月</td><td><span class="conf high"><span class="dot"></span>0.72</span></td><td>需跟进LE Audio技术栈</td></tr>
+<tr><td><b>3. AIoT芯片成第二增长曲线</b></td><td>AW33N系列已发布</td><td>12-24个月</td><td><span class="conf mid"><span class="dot"></span>0.55</span></td><td>⚠ 直接威胁易兆微IoT市场</td></tr>
+<tr><td><b>4. 品牌客户占比提升至30%+</b></td><td>小米/OPPO合作深化</td><td>18个月</td><td><span class="conf mid"><span class="dot"></span>0.50</span></td><td>品牌市场门槛提高</td></tr>
+<tr><td><b>5. 向车载蓝牙延伸</b></td><td>暂无明确信号</td><td>24个月+</td><td><span class="conf low"><span class="dot"></span>0.30</span></td><td>暂无直接影响</td></tr>
+</table>
+</div>
+
+<div class="callout warn">
+<div class="label">趋势预判总结 — 对易兆微的战略预警</div>
+<p style="font-size:.82rem"><strong>最紧迫的威胁（6-12个月）：</strong>杰理TWS芯片价格下探至¥1以下，蓝牙音频赛道利润空间将被进一步压缩。易兆微在音频芯片（YC11XX）上的竞争压力加剧。</p>
+<p style="font-size:.82rem"><strong>中期威胁（12-24个月）：</strong>杰理AIoT芯片（AW33N系列）如果成功放量，将直接进入易兆微的核心领域（IoT/智能家居/穿戴）。易兆微需要在这个窗口期巩固垂直行业客户。</p>
+<p style="font-size:.82rem"><strong>机会窗口：</strong>杰理在<b>安全芯片/POS/ETC/电子价签</b>等垂直领域暂无布局。易兆微的YC3X安全芯片+YC10XX数传芯片组合在这些细分市场有先发优势。</p>
+</div>
+
+<div class="callout success">
+<div class="label">趋势预判的推理链</div>
+<p style="font-size:.78rem">以上预判并非凭空推测，每条预判都基于：①已采集的产品数据（型号/参数/价格）②市场信号（出货量/客户变动/融资）③行业趋势（LE Audio/AIoT技术演进）。所有预判附置信度，低置信度预判标注"信号不足，仅供参考"。</p>
+</div>
+
+<div class="callout success" style="margin-top:.6rem">
+<div class="label">💡 对易兆微的启示</div>
+<p style="font-size:.82rem"><strong>三大行动建议：</strong>① 6-12 个月内评估音频线成本底线，避免被 ¥1 以下价格带挤压；② 12-18 个月内跟进 LE Audio 技术栈，防止技术代差；③ 24 个月内完成 POS/ETC/电子价签行业认证布局，抢占杰理尚未覆盖的垂直市场。</p>
+<p style="font-size:.7rem;color:var(--muted2);margin-top:.3rem">基于公开信息的 AI 推论，不构成投资建议</p>
+</div>
+</div>
+
+<div id="v3-ct4" class="tab-panel">
+<h4>杰理科技 — 客户图谱（核心情报）</h4>
+<p style="font-size:.82rem;color:var(--muted)">Agent通过拆解报告、BQB认证、FCC认证、电商描述、论坛讨论等来源，建立"品牌产品→芯片型号→芯片厂商"映射。以下为杰理科技已识别的客户关系。</p>
+
+<div class="callout">
+<div class="label">数据来源说明 — 蓝牙芯片客户情报的6大来源</div>
+<p style="font-size:.8rem"><strong>① 拆解报告（★★★★★）：</strong>iFixit、52solution、微信拆解公众号等拆解TWS/音箱/穿戴产品，直接标注主控芯片型号。这是最可靠的客户情报来源 [$TRAE_REF](https://mp.weixin.qq.com/s/teardown-example)。</p>
+<p style="font-size:.8rem"><strong>② BQB认证数据库（★★★★★）：</strong>Bluetooth SIG的Launch Studio数据库，通过芯片QDID反查引用该QDID的列入产品，可批量发现客户 [$TRAE_REF](https://launchstudio.bluetooth.com/)。</p>
+<p style="font-size:.8rem"><strong>③ FCC认证数据库（★★★★）：</strong>FCC ID查询可关联芯片型号和品牌产品，尤其适用于在美国销售的产品。</p>
+<p style="font-size:.8rem"><strong>④ 电商产品描述（★★★）：</strong>淘宝/1688/京东产品详情页有时标注芯片型号，尤其工控类产品。</p>
+<p style="font-size:.8rem"><strong>⑤ 新闻/展会报道（★★★）：</strong>"XX品牌采用XX芯片方案"类新闻，展会联合展示。</p>
+<p style="font-size:.8rem"><strong>⑥ 论坛/社区讨论（★★）：</strong>21ic、EEVblog、知乎等用户讨论拆解结果或方案选型。</p>
+</div>
+
+<h4 style="margin-top:.85rem">客户图谱：品牌产品 → 芯片型号映射</h4>
+<div class="tbl-wrap" style="max-height:350px">
+<table style="font-size:.76rem;min-width:700px">
+<tr><th>品牌客户</th><th>产品型号</th><th>产品类型</th><th>主控芯片</th><th>芯片厂商</th><th>情报来源</th><th>置信度</th><th>替代机会</th></tr>
+<tr style="background:rgba(229,62,62,0.05)"><td><b>小米</b></td><td>Redmi Buds 5</td><td>TWS耳机</td><td>BT8912F</td><td>杰理</td><td>拆解报告 <span class="src-cite">[52solution]</span></td><td><span class="conf high"><span class="dot"></span>0.85</span></td><td><span class="chip red">低（品牌深度合作）</span></td></tr>
+<tr style="background:rgba(229,62,62,0.05)"><td><b>OPPO</b></td><td>OPPO Enco Air3</td><td>TWS耳机</td><td>BT8912F</td><td>杰理</td><td>拆解报告 <span class="src-cite">[拆解]</span> + BQB <span class="src-cite">[BQB]</span></td><td><span class="conf high"><span class="dot"></span>0.82</span></td><td><span class="chip red">低（品牌深度合作）</span></td></tr>
+<tr><td>QCY</td><td>T13</td><td>TWS耳机</td><td>AC700N</td><td>杰理</td><td>拆解报告 <span class="src-cite">[拆解]</span></td><td><span class="conf high"><span class="dot"></span>0.80</span></td><td><span class="chip yellow">中（白牌可切换）</span></td></tr>
+<tr><td>倍思</td><td>Bowie M2</td><td>TWS耳机</td><td>AC700N</td><td>杰理</td><td>电商描述 <span class="src-cite">[淘宝]</span> + 拆解 <span class="src-cite">[拆解]</span></td><td><span class="conf mid"><span class="dot"></span>0.68</span></td><td><span class="chip yellow">中（价格敏感型）</span></td></tr>
+<tr><td>漫步者</td><td>X3 Lite</td><td>TWS耳机</td><td>BT8912F</td><td>杰理</td><td>BQB认证 <span class="src-cite">[BQB]</span></td><td><span class="conf mid"><span class="dot"></span>0.60</span></td><td><span class="chip yellow">中（多供应商策略）</span></td></tr>
+<tr><td>联想</td><td>XT81</td><td>蓝牙音箱</td><td>AC200N</td><td>杰理</td><td>论坛讨论 <span class="src-cite">[21ic]</span></td><td><span class="conf low"><span class="dot"></span>0.42</span></td><td><span class="chip green">高（价格驱动型）</span></td></tr>
+<tr><td>杂牌白牌</td><td>—</td><td>TWS/音箱</td><td>AC200N/AC700N</td><td>杰理</td><td>电商批量描述 <span class="src-cite">[1688]</span></td><td><span class="conf mid"><span class="dot"></span>0.55</span></td><td><span class="chip green">高（无品牌忠诚度）</span></td></tr>
+<tr><td>爱国者</td><td>TWS200</td><td>TWS耳机</td><td>AC700N</td><td>杰理</td><td>新闻 <span class="src-cite">[新闻]</span></td><td><span class="conf low"><span class="dot"></span>0.38</span></td><td><span class="chip green">高（二线品牌）</span></td></tr>
+</table>
+</div>
+
+<div class="no-print" style="margin:.6rem 0">
+<button class="btn btn-primary btn-sm" onclick="openChipDrilldown()">🔽 下钻：BT8912F → 芯片级客户情报</button>
+<span style="font-size:.72rem;color:var(--muted);margin-left:.5rem">公司级看全貌 → 芯片级看具体（拆解报告+BQB+FCC）</span>
+</div>
+<h4 style="margin-top:.85rem">客户集中度分析</h4>
+<div class="bar-chart" style="height:120px">
+<div class="bar-col"><div class="bar" style="height:35%;background:var(--danger)"><span class="val">小米+OPPO<br>~35%</span></div><div class="lbl">品牌客户</div></div>
+<div class="bar-col"><div class="bar" style="height:30%;background:var(--warn)"><span class="val">QCY/倍思等<br>~30%</span></div><div class="lbl">二线品牌</div></div>
+<div class="bar-col"><div class="bar" style="height:35%;background:var(--muted)"><span class="val">白牌<br>~35%</span></div><div class="lbl">白牌市场</div></div>
+</div>
+<p style="font-size:.72rem;color:var(--muted);margin-top:.3rem">数据来源：行业报告+拆解统计+电商分析 <span class="src-cite">[报告]</span> · 置信度 <span class="conf mid"><span class="dot"></span>0.55</span> · 注：客户集中度为估算值</p>
+
+<div class="callout warn" style="margin-top:.85rem">
+<div class="label">替代机会分析 — 对易兆微的直接价值</div>
+<p style="font-size:.82rem"><strong>高替代机会客户（易兆微可切入）：</strong></p>
+<ul style="font-size:.8rem;margin-top:.4rem">
+<li><strong>白牌TWS/音箱厂商（~35%）：</strong>无品牌忠诚度，纯价格驱动。易兆微YC11XX如有价格优势可直接切入</li>
+<li><strong>联想/爱国者等二线品牌：</strong>对杰理无深度绑定，切换成本低。易兆微可通过样品测试+技术支持切入</li>
+<li><strong>倍思等价格敏感型品牌：</strong>已有国产替代意识，易兆微可通过"Pin兼容+更低成本"切入</li>
+</ul>
+<p style="font-size:.82rem;margin-top:.4rem"><strong>低替代机会客户（短期难以切入）：</strong></p>
+<ul style="font-size:.8rem;margin-top:.4rem">
+<li><strong>小米/OPPO（~35%）：</strong>品牌深度合作，联合调音/定制SDK，切换成本极高</li>
+<li><strong>QCY：</strong>杰理核心客户，长期合作历史，需差异化才有机会</li>
+</ul>
+</div>
+
+<div class="callout success" style="margin-top:.6rem">
+<div class="label">客户情报的闭环价值</div>
+<p style="font-size:.82rem">从拆解报告发现"倍思Bowie M2用了杰理AC700N" → 替代机会分析判定"中（价格敏感型）" → 易兆微销售可直接联系倍思"我们有Pin兼容的YC11XX，价格更有优势，可以送样测试" → <strong>客户情报直接转化为销售线索</strong>。</p>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+<h3>页面布局</h3>
+<p>公司分析页面分为六个区域：输入区（公司名称输入框 + 快速选择下拉 + 启动按钮）、采集进度区（5步采集进度，含来源可信度和预计耗时）、5维度Tab分析区（①产品布局矩阵：产品线×型号×应用×价格×定位矩阵；②市场信息画像：市占率/出货量/客户/价格/营收数据表+解读；③战略布局解读：技术路线/产品延伸/客户升级/资本运作/生态/专利6维战略表+证据链；④趋势预判：5条趋势预判+时间窗口+置信度+对易兆微影响；<strong style="color:var(--danger)">⑤客户图谱：品牌产品→芯片型号映射表+客户集中度分析+替代机会分析</strong>）、对易兆微启示区（每个维度分析后自动生成"对易兆微的战略启示"卡片）。</p>
+
+<h3>公司级分析的5大维度</h3>
+<div class="tbl-wrap">
+<table>
+<tr><th>分析维度</th><th>核心问题</th><th>数据来源</th><th>输出</th></tr>
+<tr><td><strong>产品布局矩阵</strong></td><td>这家公司有哪些产品线？每条线的定位是什么？产品之间是什么关系？</td><td>官网产品页、Datasheet、电商、行业报告</td><td>产品线×型号矩阵 + 价格带分布 + 定位金字塔</td></tr>
+<tr><td><strong>市场信息画像</strong></td><td>这家公司占了多少市场？核心客户是谁？价格策略是什么？营收多大？</td><td>行业报告、招股书/财报、电商报价、新闻</td><td>市占率/出货量/客户/价格/营收数据表 + 市场定位解读</td></tr>
+<tr><td><strong>战略布局解读</strong></td><td>这家公司的技术路线、产品延伸方向、客户升级路径、资本运作、生态建设是什么？</td><td>官网、专利数据库、投融资平台、新闻、论坛</td><td>6维战略分析表 + 证据链推理 + 战略意图解读</td></tr>
+<tr><td><strong>未来趋势预判</strong></td><td>基于现有信号，这家公司6-24个月内会做什么？对我有什么影响？</td><td>产品路线图信号、市场动态、行业趋势、专利申请</td><td>5条趋势预判（含时间窗口+置信度+影响评估）</td></tr>
+<tr style="background:rgba(229,62,62,0.05)"><td><strong style="color:var(--danger)">客户图谱</strong></td><td>这家公司的芯片被哪些品牌产品使用了？哪些客户有替代机会？</td><td><strong>拆解报告、BQB认证、FCC认证、电商描述、新闻、论坛</strong></td><td>品牌→芯片映射表 + 客户集中度 + 替代机会分级</td></tr>
+</table>
+</div>
+
+<h3>业务逻辑</h3>
+<ol>
+<li><strong>公司识别与分类：</strong>用户输入公司名称后，Agent自动识别并分类（蓝牙音频厂/ble物联网厂/国际大厂/跨界玩家），加载对应的行业知识包。例如识别"杰理科技"→分类为"蓝牙音频SoC厂商"→加载TWS/音箱/AIoT行业知识。</li>
+<li><strong>多源公司画像采集：</strong>不同于芯片级分析只采集芯片参数，公司级分析采集：公司官网全部产品页、招股书/年报/财报数据、行业研究报告中的市占率/出货量数据、投融资信息、专利数据库、电商全线产品报价、新闻媒体报道、论坛/社区口碑。</li>
+<li><strong>5维度并行分析：</strong>Agent按"产品布局、市场信息、战略布局、趋势预判、客户图谱"5个维度分别调用LLM分析。每个维度的分析同样遵循证据链推理结构（数据→发现→推论→建议），并经过结论自检。</li>
+<li><strong>客户图谱构建（核心情报）：</strong>Agent通过6大来源构建"品牌产品→芯片型号→芯片厂商"映射：①拆解报告（iFixit/52solution/微信拆解号）直接标注芯片型号 ②BQB认证数据库通过QDID反查列入产品 ③FCC认证关联芯片和品牌 ④电商产品描述 ⑤新闻/展会报道 ⑥论坛/社区讨论。每个客户关系附置信度和替代机会分级。</li>
+<li><strong>对易兆微启示自动生成：</strong>每个维度分析完成后，Agent额外调用一次LLM，结合易兆微的产品线（YC10XX/YC11XX/YC13XX/YC3X/YC5X）和应用领域（IoT/POS/ETC/穿戴/音频/键鼠/价签），自动生成"该维度对易兆微的战略启示"。</li>
+<li><strong>替代机会分级：</strong>客户图谱中每个客户关系自动评估替代机会：高（白牌/价格驱动型/无品牌忠诚度）、中（二线品牌/多供应商策略/价格敏感型）、低（品牌深度合作/联合定制/长期合同）。分级基于客户类型、合作深度、切换成本三个因素。</li>
+<li><strong>趋势预判的可信度管控：</strong>趋势预判必须标注：信号依据（哪些已采集数据支持此预判）、时间窗口（6/12/18/24个月）、置信度（基于信号强度评估）。置信度<0.4的预判标注"信号不足，仅供参考"，不作为战略决策依据。</li>
+</ol>
+
+<h3>芯片级客户情报（模式A增强）</h3>
+<div class="callout">
+<div class="label">单颗芯片也能查客户</div>
+<p style="font-size:.82rem">不仅公司级分析有客户图谱，<strong>芯片级分析（模式A）也增加了客户情报维度</strong>。用户输入一颗芯片型号（如"BT8912F"），Agent除了输出6维度营销分析外，还额外采集该芯片被哪些品牌产品使用的信息。</p>
+</div>
+<div class="tbl-wrap">
+<table>
+<tr><th>输入</th><th>芯片级客户情报输出</th><th>数据来源</th><th>与公司级客户图谱的关系</th></tr>
+<tr><td>芯片型号<br>（如BT8912F）</td><td>该芯片被哪些品牌产品使用 + 每个客户的替代机会评估</td><td>拆解报告、BQB认证、FCC认证、电商、论坛</td><td>公司级客户图谱的"下钻视图"——从公司维度可下钻到单颗芯片的客户列表</td></tr>
+</table>
+</div>
+<p style="font-size:.8rem;color:var(--muted);margin-top:.4rem">例如：公司级查"杰理科技"→客户图谱显示8个品牌客户 → 点击BT8912F芯片 → 下钻到芯片级客户列表：小米Redmi Buds 5、OPPO Enco Air3、漫步者X3 Lite。两个层面的客户情报互补：公司级看全貌，芯片级看具体。</p>
+
+<h3>公司级分析 vs 芯片级分析对比</h3>
+<div class="tbl-wrap">
+<table>
+<tr><th>对比维度</th><th>模式A：芯片级分析</th><th>模式B：公司级分析（v3新增）</th></tr>
+<tr><td>输入</td><td>芯片型号（YC1308）</td><td>公司名称（杰理科技）</td></tr>
+<tr><td>分析粒度</td><td>单颗芯片的6维度营销分析+客户情报</td><td>整家公司的5维度战略分析+客户图谱</td></tr>
+<tr><td>采集范围</td><td>6类来源×6维度+客户情报（约55条数据）</td><td>8类来源×5维度+客户图谱（约90-120条数据）</td></tr>
+<tr><td>分析维度</td><td>产品定位/价格/渠道/传播/技术/客户 + <strong style="color:var(--danger)">客户情报</strong></td><td>产品布局/市场信息/战略布局/趋势预判/<strong style="color:var(--danger)">客户图谱</strong></td></tr>
+<tr><td>输出</td><td>芯片竞品分析报告</td><td>公司战略分析报告+对易兆微启示</td></tr>
+<tr><td>适用场景</td><td>芯片选型、参数对比</td><td>友商研究、战略研判、竞争预警</td></tr>
+<tr><td>闭环机制</td><td>共享同一套校验→自检→溯源闭环</td><td>共享同一套校验→自检→溯源闭环</td></tr>
+</table>
+</div>
+
+<h3>边界与异常</h3>
+<ul>
+<li><strong>公司名称无法识别：</strong>Agent返回"无法识别该公司，请输入完整公司名称（如'杰理科技'、'中科蓝讯'）或提供官网URL"</li>
+<li><strong>非上市公司数据不足：</strong>未上市/拟上市公司缺乏公开财报数据，"市场信息"维度置信度整体降为"中"，标注"该公司未上市，财务数据为行业估算"</li>
+<li><strong>趋势预判免责声明：</strong>所有趋势预判均标注"基于公开信息推理，不构成投资建议"，置信度<0.4的预判以灰色展示</li>
+<li><strong>对易兆微启示的边界：</strong>Agent生成的"对易兆微启示"基于易兆微公开产品信息，不涉及易兆微内部战略。启示标注"基于公开信息的AI推论，仅供参考"</li>
+</ul>
+
+<!-- ==================== 技术架构 ==================== -->
+<h2 id="sec-11"><span class="num">11</span> 技术架构与实现方案</h2>
+
+<h3>技术栈选型</h3>
+<div class="tbl-wrap">
+<table>
+<tr><th>层级</th><th>技术选型</th><th>选型理由</th></tr>
+<tr><td>Agent编排</td><td>Python + LangChain/LangGraph</td><td>支持有向图编排闭环流程，内置工具调用和状态管理</td></tr>
+<tr><td>LLM推理</td><td>GPT-4o / Claude-3.5-Sonnet</td><td>结构化输出能力强，支持JSON mode保证输出格式</td></tr>
+<tr><td>数据采集</td><td>Playwright + BeautifulSoup</td><td>Playwright处理JS渲染页面，BS4解析静态HTML</td></tr>
+<tr><td>PDF解析</td><td>PyMuPDF (fitz)</td><td>高性能PDF文本和表格提取，支持Datasheet解析</td></tr>
+<tr><td>数据校验</td><td>自研规则引擎 + difflib</td><td>规则引擎处理格式归一化，difflib做文本相似度比对</td></tr>
+<tr><td>数据存储</td><td>SQLite + JSON</td><td>SQLite存储结构化数据，JSON存储证据链和溯源信息</td></tr>
+<tr><td>报告渲染</td><td>Jinja2模板 + ECharts</td><td>Jinja2生成HTML报告，ECharts渲染交互式图表</td></tr>
+<tr><td>任务队列</td><td>Celery + Redis</td><td>异步采集任务并行化，避免阻塞用户界面</td></tr>
+</table>
+</div>
+
+<h3>Agent闭环编排（LangGraph状态图）</h3>
+<div class="callout">
+<div class="label">核心状态流转</div>
+<p style="font-size:.82rem"><code>START → plan_collection → execute_collection → clean_data → cross_validate → score_confidence → [confidence < threshold?] → (yes) plan_collection(补采) / (no) → llm_analysis → self_check → [check_failed?] → (yes) llm_analysis(重推) / (no) → assemble_report → render_visualization → build_traceability → END</code></p>
+<p style="font-size:.8rem;margin-top:.4rem">状态图中包含两个反馈回路：①置信度不足→补充采集（最多2轮）②自检失败→重新推理（最多1轮）。每个节点都有超时和降级策略。</p>
+</div>
+
+<h3>数据流架构</h3>
+<div class="tbl-wrap">
+<table>
+<tr><th>阶段</th><th>输入</th><th>处理</th><th>输出</th><th>存储</th></tr>
+<tr><td>采集</td><td>芯片型号</td><td>6源并行采集</td><td>原始数据包(含元信息)</td><td>SQLite raw_data表</td></tr>
+<tr><td>校验</td><td>原始数据包</td><td>格式归一+交叉比对</td><td>校验数据包(含置信度)</td><td>SQLite validated_data表</td></tr>
+<tr><td>分析</td><td>校验数据包</td><td>6维度LLM推理</td><td>分析结果(含证据链)</td><td>JSON analysis_result</td></tr>
+<tr><td>报告</td><td>分析结果+校验数据</td><td>模板渲染+图表生成</td><td>HTML/PDF/JSON报告</td><td>文件系统</td></tr>
+<tr><td>溯源</td><td>报告+全部数据</td><td>索引构建+URL绑定</td><td>溯源索引表</td><td>SQLite traceability表</td></tr>
+</table>
+</div>
+
+<h3>关键算法</h3>
+<div class="card-grid">
+<div class="card">
+<h4>置信度计算</h4>
+<p><code>confidence = source_weight × freshness × cross_validation</code><br>source_weight: 1.0/0.8/0.6/0.4/0.2<br>freshness: 7d=1.0, 30d=0.8, 90d=0.6, 180d=0.4<br>cross_val: 3+源=1.0, 2源=0.8, 1源=0.5, 冲突=0.3<br>冲突惩罚: ×0.95</p>
+</div>
+<div class="card">
+<h4>缺口检测</h4>
+<p><code>coverage = collected_items / expected_items</code><br>coverage ≥ 60%: 正常<br>coverage 30-59%: 部分覆盖(标黄)<br>coverage < 30%: 数据缺口(标红)<br>触发条件: 任一维度coverage < 60% → 补采</p>
+</div>
+<div class="card">
+<h4>结论自检</h4>
+<p><code>1. 提取结论中引用的数据值<br>2. 在validated_data中检索<br>3. 验证值是否真实存在<br>4. 验证结论与数据方向一致<br>5. 验证同一维度内无矛盾</code><br>失败处理: 降级标注 / 重新推理</p>
+</div>
+<div class="card">
+<h4>证据链绑定</h4>
+<p><code>conclusion_id → {<br>  data: [data_point_ids],<br>  finding: text + sources,<br>  inference: text + logic,<br>  recommendation: text + basis<br>}</code><br>每个data_point_id可追溯至原始来源URL</p>
+</div>
+</div>
+
+<!-- ==================== 闭环完整性检查 ==================== -->
+<h2 id="sec-12"><span class="num">12</span> 闭环完整性检查清单</h2>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>检查项</th><th>v1状态</th><th>v2改进</th><th>验证方式</th></tr>
+<tr><td>数据采集后有校验</td><td style="color:var(--danger)">✗ 直接送LLM</td><td style="color:var(--success)">✓ 交叉校验+置信度评分</td><td>校验页面展示验证状态</td></tr>
+<tr><td>来源冲突有处理</td><td style="color:var(--danger)">✗ 无冲突检测</td><td style="color:var(--success)">✓ 保留全部值+透明标注</td><td>溯源页面冲突历史</td></tr>
+<tr><td>结论有证据链</td><td style="color:var(--danger)">✗ 纯文本输出</td><td style="color:var(--success)">✓ 4层推理链绑定</td><td>报告中展开证据链</td></tr>
+<tr><td>结论有自检</td><td style="color:var(--danger)">✗ 无验证</td><td style="color:var(--success)">✓ 逆向验证+幻觉检测</td><td>自检报告展示通过率</td></tr>
+<tr><td>数据缺口有闭环</td><td style="color:var(--danger)">✗ 带缺口分析</td><td style="color:var(--success)">✓ 自动检测+补充采集</td><td>缺口检测+2轮回补</td></tr>
+<tr><td>报告可视化丰富</td><td style="color:var(--danger)">✗ 表格+柱状图</td><td style="color:var(--success)">✓ 6种图表+交互</td><td>报告中6种图表渲染</td></tr>
+<tr><td>全链路可溯源</td><td style="color:var(--danger)">✗ 无溯源</td><td style="color:var(--success)">✓ 结论→数据→来源URL</td><td>溯源页面100%可追溯</td></tr>
+<tr><td>置信度可视化</td><td style="color:var(--danger)">✗ 无置信度</td><td style="color:var(--success)">✓ 4级标识+颜色编码</td><td>报告中每条结论附置信度</td></tr>
+<tr><td>公司级战略分析</td><td style="color:var(--danger)">✗ 仅芯片级</td><td style="color:var(--success)">✓ v3新增：产品布局+市场+战略+趋势预判</td><td>公司分析4维度报告</td></tr>
+<tr><td>对易兆微启示</td><td style="color:var(--danger)">✗ 无</td><td style="color:var(--success)">✓ v3新增：每个维度自动生成战略启示</td><td>启示卡片附置信度</td></tr>
+<tr><td>趋势预判可信度</td><td style="color:var(--danger)">✗ 无预判</td><td style="color:var(--success)">✓ v3新增：信号依据+时间窗口+置信度</td><td>预判表含影响评估</td></tr>
+<tr><td>客户情报（公司级）</td><td style="color:var(--danger)">✗ 无</td><td style="color:var(--success)">✓ v3新增：拆解报告+BQB+FCC构建客户图谱</td><td>品牌→芯片映射+替代机会</td></tr>
+<tr><td>客户情报（芯片级）</td><td style="color:var(--danger)">✗ 无</td><td style="color:var(--success)">✓ v3新增：单颗芯片的客户下钻视图</td><td>芯片→品牌产品列表</td></tr>
+<tr><td>替代机会分析</td><td style="color:var(--danger)">✗ 无</td><td style="color:var(--success)">✓ v3新增：高中低三级替代机会分级</td><td>客户情报→销售线索</td></tr>
+</table>
+</div>
+
+<div class="callout success">
+<div class="label">闭环达成 — v3双模式版</div>
+<p>从"用户输入"到"生成可溯源的可视化报告"，Agent支持<strong>双模式闭环</strong>：模式A（芯片级：采集→校验→6维度分析→报告→溯源）和模式B（公司级：公司画像采集→校验→4维度战略分析→报告→溯源→对易兆微启示）。两种模式共享同一套校验引擎、置信度评分、证据链推理和溯源体系。数据严谨性通过交叉验证、置信度评分、冲突透明化三重保障；分析可信度通过证据链推理、结论自检、幻觉防护三重保障；战略价值通过产品布局解读、趋势预判、对易兆微启示三层递进。</p>
+</div>
+
+<!-- ==================== Footer ==================== -->
+<div class="footer">
+<p>AI蓝牙芯片竞品情报Agent — PRD v3.1 双模式·客户情报增强版（交互完善版）</p>
+<p style="margin-top:.3rem">双模式闭环 · 芯片级分析+公司级战略分析 · 客户图谱（拆解报告+BQB+FCC）· 替代机会分析 · 蓝牙芯片行业知识</p>
+<p style="margin-top:.3rem;font-size:.72rem">生成日期：2026-08-13 | 版本：v3.1 | 赛道：蓝牙芯片（BLE/音频/数传） | 背景公司：易兆微电子（杭州）</p>
+</div>
+
+</div>
+
+<script>
+// ===== Module 1: 智能采集引擎交互 =====
+function v2StartCollect() {
+  var btn = document.getElementById('v2-collectBtn');
+  var result = document.getElementById('v2-collectResult');
+  var steps = document.querySelectorAll('#v2-steps .pstep');
+  var preview = document.getElementById('v2-preview');
+
+  btn.disabled = true;
+  btn.textContent = 'Agent采集中...';
+  result.style.display = 'block';
+
+  var i = 0;
+  function nextStep() {
+    if (i < steps.length) {
+      steps[i].classList.remove('pending');
+      steps[i].classList.add('active');
+      steps[i].querySelector('.icon').textContent = '⟳';
+      setTimeout(function() {
+        steps[i].classList.remove('active');
+        steps[i].classList.add('done');
+        steps[i].querySelector('.icon').textContent = '✓';
+        i++;
+        nextStep();
+      }, 600);
+    } else {
+      btn.disabled = false;
+      btn.textContent = '↻ 重新采集';
+      preview.style.display = 'block';
+      var nb = document.createElement('div');
+      nb.style.marginTop = '.6rem';
+      nb.innerHTML = '<button class="btn btn-primary btn-sm" onclick="goSection(\'sec-6\')">✓ 采集完成，进入校验 →</button>';
+      preview.appendChild(nb);
+    }
+  }
+  nextStep();
+}
+
+// ===== Module 3: 营销分析引擎Tab切换 =====
+function v3SwitchTab(index) {
+  var tabs = document.querySelectorAll('#v3-tabs .tab');
+  var panels = document.querySelectorAll('[id^="v3-tab"]');
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].classList.remove('active');
+    if (panels[i]) panels[i].classList.remove('active');
+  }
+  tabs[index].classList.add('active');
+  if (panels[index]) panels[index].classList.add('active');
+}
+
+// ===== Module 6: 公司级竞品分析引擎 =====
+function v3StartCompAnalysis() {
+  var btn = document.getElementById('v3-compBtn');
+  var result = document.getElementById('v3-compResult');
+  var steps = document.querySelectorAll('#v3-compSteps .pstep');
+  var preview = document.getElementById('v3-compPreview');
+
+  btn.disabled = true;
+  btn.textContent = 'Agent分析中...';
+  result.style.display = 'block';
+
+  var i = 0;
+  function nextStep() {
+    if (i < steps.length) {
+      steps[i].classList.remove('pending');
+      steps[i].classList.add('active');
+      steps[i].querySelector('.icon').textContent = '⟳';
+      setTimeout(function() {
+        steps[i].classList.remove('active');
+        steps[i].classList.add('done');
+        steps[i].querySelector('.icon').textContent = '✓';
+        i++;
+        nextStep();
+      }, 700);
+    } else {
+      btn.disabled = false;
+      btn.textContent = '↻ 重新分析';
+      preview.style.display = 'block';
+      var nb2 = document.createElement('div');
+      nb2.style.marginTop = '.6rem';
+      nb2.innerHTML = '<button class="btn btn-primary btn-sm" onclick="document.getElementById(\'v3-compTabs\').scrollIntoView({behavior:\'smooth\'})">↓ 查看5维分析结果</button>';
+      preview.appendChild(nb2);
+    }
+  }
+  nextStep();
+}
+
+function v3SwitchCompTab(index) {
+  var tabs = document.querySelectorAll('#v3-compTabs .tab');
+  var panels = document.querySelectorAll('[id^="v3-ct"]');
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].classList.remove('active');
+    if (panels[i]) panels[i].classList.remove('active');
+  }
+  tabs[index].classList.add('active');
+  if (panels[index]) panels[index].classList.add('active');
+}
+
+// ===== Company Select 联动 =====
+document.getElementById('v3-compSelect') && document.getElementById('v3-compSelect').addEventListener('change', function() {
+  var input = document.getElementById('v3-compInput');
+  var names = {jieli:'杰理科技', bluetrum:'中科蓝讯', bes:'恒玄科技', telink:'泰凌微电子', airoha:'络达', qualcomm:'高通'};
+  input.value = names[this.value] || '';
+});
+
+// ===== Module 4: 散点图交互 =====
+document.querySelectorAll('.scatter-dot').forEach(function(dot) {
+  dot.addEventListener('click', function() {
+    var title = this.getAttribute('title');
+    var info = {
+      'STM32F103': ['¥8.5 · 72MHz', '来源：立创[电商★4] + ST官网[官网★5] + Datasheet[★5]', '置信度 0.80 · 3源一致'],
+      'GD32F103': ['¥5.2 · 108MHz', '来源：立创[电商★4] + 官网[★5]', '置信度 0.78 · 2源一致'],
+      'CH32F103': ['¥4.8 · 144MHz', '来源：立创[电商★4] + 官网[★5]', '置信度 0.72 · 2源一致'],
+      'AT32F403A': ['¥6.8 · 240MHz', '来源：立创[电商★4] + 官网[★5]', '置信度 0.70 · 2源一致']
+    };
+    var d = info[title] || [title, '来源待验证', '置信度 —'];
+    openModal('数据点 — ' + title,
+      '<p style="font-size:.82rem"><b>' + d[0] + '</b></p>' +
+      '<p style="font-size:.78rem;color:var(--muted)">' + d[1] + '</p>' +
+      '<p style="font-size:.78rem;color:var(--muted)">' + d[2] + '</p>' +
+      '<p style="font-size:.72rem;color:var(--muted);margin-top:.4rem">→ 该数据点可继续追溯至原始 URL（采集时间 2026-08-13 18:35）</p>');
+  });
+});
+
+// ===== Source Citation 点击 =====
+document.querySelectorAll('.src-cite').forEach(function(cite) {
+  if (!cite.hasAttribute('onclick')) {
+    cite.addEventListener('click', function() {
+      var text = this.textContent;
+      openModal('来源引用 — ' + text,
+        '<p style="font-size:.82rem">来源引用：<b>' + text + '</b></p>' +
+        '<p style="font-size:.78rem;color:var(--muted)">→ 点击可访问原始数据源 URL</p>' +
+        '<p style="font-size:.78rem;color:var(--muted)">→ 采集时间：2026-08-13 18:37 · 可信度：对应来源星级</p>');
+    });
+  }
+});
+
+// ===== Nav 导航点击 =====
+document.querySelectorAll('.app-topbar .nav span').forEach(function(span) {
+  span.addEventListener('click', function() {
+    var navParent = this.parentElement;
+    navParent.querySelectorAll('span').forEach(function(s) {
+      s.classList.remove('active');
+    });
+    this.classList.add('active');
+    var map = {'首页':'top','采集':'sec-5','校验':'sec-6','分析':'sec-7','报告':'sec-8','溯源':'sec-9','公司分析':'sec-10','芯片分析':'sec-5'};
+    var id = map[this.textContent.trim()];
+    if (id === 'top'){ window.scrollTo({top:0, behavior:'smooth'}); }
+    else if (id){ goSection(id); }
+  });
+});
+</script>
+
+<script>
+/* ===== 交互完善版：通用能力 ===== */
+function goSection(id){
+  var el = document.getElementById(id);
+  if (el){ el.scrollIntoView({behavior:'smooth', block:'start'}); }
+  var label = el ? el.textContent.replace(/\s+/g,' ').trim().slice(0,24) : id;
+  toast('已跳转：' + label);
+}
+function toast(msg){
+  var t = document.getElementById('prd-toast');
+  if (!t){ t = document.createElement('div'); t.id = 'prd-toast'; t.className = 'toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._tm);
+  t._tm = setTimeout(function(){ t.classList.remove('show'); }, 2000);
+}
+function openModal(title, html){
+  document.getElementById('prd-modal-title').textContent = title;
+  document.getElementById('prd-modal-body').innerHTML = html;
+  document.getElementById('prd-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(){
+  document.getElementById('prd-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+(function(){
+  var m = document.getElementById('prd-modal');
+  if (m) m.addEventListener('click', function(e){ if (e.target === this) closeModal(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+  window.addEventListener('scroll', function(){
+    var b = document.getElementById('backtop');
+    if (b) b.classList.toggle('show', window.scrollY > 480);
+  });
+})();
+
+/* 文档目录滚动高亮 */
+(function(){
+  var links = document.querySelectorAll('#docnav a');
+  if (!links.length) return;
+  var ids = [];
+  links.forEach(function(a){ ids.push(a.getAttribute('href').slice(1)); });
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting){
+        links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id); });
+      }
+    });
+  }, { rootMargin: '-15% 0px -75% 0px' });
+  ids.forEach(function(id){ var el = document.getElementById(id); if (el) obs.observe(el); });
+})();
+
+/* 模块1：补充采集 / 跳过 */
+function v2Supplement(){
+  var gap = document.getElementById('v2-gap');
+  if (!gap){ toast('请先点击"启动Agent采集"'); return; }
+  gap.className = 'callout warn';
+  gap.innerHTML = '<div class="label">⟳ 补充采集中…</div><p style="font-size:.82rem">Agent正在执行第2轮补充采集：聚焦微信公众号和技术博客…</p>';
+  setTimeout(function(){
+    gap.className = 'callout success';
+    gap.innerHTML =
+      '<div class="label">✓ 补充采集完成</div>' +
+      '<p style="font-size:.82rem">新增 4 条数据（微信公众号 2 条 / 技术博客 2 条），"传播话术"维度覆盖率 55% → 78%，社交媒体信号补足。</p>' +
+      '<p style="font-size:.72rem;color:var(--muted);margin-top:.3rem">缺口已回补，整体置信度 0.76 → 0.81。</p>';
+    toast('补充采集完成，缺口已回补');
+  }, 1400);
+}
+function v2Skip(){
+  var gap = document.getElementById('v2-gap');
+  if (!gap){ toast('请先点击"启动Agent采集"'); return; }
+  gap.className = 'callout warn';
+  gap.innerHTML =
+    '<div class="label">已跳过补充采集</div>' +
+    '<p style="font-size:.82rem">缺口维度将以"数据不足"标注进入分析，报告中该维度置信度上限为"中"。</p>' +
+    '<div style="margin-top:.5rem"><button class="btn btn-primary btn-sm" onclick="goSection(\'sec-6\')">→ 进入数据校验</button></div>';
+  toast('已跳过补充，进入校验模块');
+}
+
+/* 模块4：导出 */
+function v4Export(type){
+  var d = new Date();
+  var stamp = '' + d.getFullYear() + ('0'+(d.getMonth()+1)).slice(-2) + ('0'+d.getDate()).slice(-2);
+  var data = {
+    product:'STM32F103', generatedAt:'2026-08-13 18:42', overallConfidence:0.62, passRate:'88%', sources:6,
+    charts:['竞品定位散点图','价格对比柱状图','渠道能力雷达图','数据覆盖热力图','置信度分布图','话术对比矩阵'],
+    conclusions:[
+      {dim:'产品定位', summary:'高性能主流MCU，主打工业控制', conf:0.80, sources:3},
+      {dim:'价格策略', summary:'品牌溢价，价差40-45%', conf:0.38, sources:3},
+      {dim:'渠道策略', summary:'授权代理+官方直营双轨', conf:0.48, sources:2},
+      {dim:'传播话术', summary:'可靠性+生态+长期供货', conf:0.55, sources:2},
+      {dim:'技术参数', summary:'外设丰富度为核心竞争力', conf:0.72, sources:3},
+      {dim:'目标客户', summary:'工业控制为主(45%)', conf:0.30, sources:1}
+    ],
+    disclaimer:'演示数据：来源URL/采集时间/置信度均为示例，生产环境需真实采集。'
+  };
+  if (type === 'pdf'){ window.print(); toast('已调起打印 / 另存为 PDF'); return; }
+  if (type === 'json'){
+    var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'ChipIntel_STM32F103_' + stamp + '.json';
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 300);
+    toast('JSON 数据包已导出');
+    return;
+  }
+  var html = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>ChipIntel_STM32F103</title>' +
+    '<style>body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;max-width:860px;margin:0 auto;padding:30px 20px;color:#1a202c;line-height:1.7}' +
+    'h2{border-bottom:2px solid #0f4c75;padding-bottom:6px}table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}' +
+    'th{background:#0f4c75;color:#fff;padding:8px;text-align:left}td{padding:7px 8px;border-bottom:1px solid #e2e8f0}</style></head><body>' +
+    '<h1>STM32F103 竞品营销分析报告</h1>' +
+    '<p>生成于 2026-08-13 18:42 · ChipIntel Agent · 整体置信度 0.62（中等） · 结论通过率 88%（21/24）</p>' +
+    '<h2>6 种可视化图表</h2><ul><li>竞品定位散点图</li><li>价格对比柱状图</li><li>渠道能力雷达图</li><li>数据覆盖热力图</li><li>置信度分布图</li><li>传播话术对比矩阵</li></ul>' +
+    '<h2>分析结论</h2><table><tr><th>维度</th><th>结论摘要</th><th>置信度</th><th>来源数</th></tr>' +
+    data.conclusions.map(function(c){ return '<tr><td>'+c.dim+'</td><td>'+c.summary+'</td><td>'+c.conf+'</td><td>'+c.sources+'</td></tr>'; }).join('') +
+    '</table><p style="color:#718096;font-size:12px">本报告由 PRD 交互原型导出 · 演示数据</p></body></html>';
+  var b2 = new Blob([html], {type:'text/html;charset=utf-8'});
+  var a2 = document.createElement('a');
+  a2.href = URL.createObjectURL(b2); a2.download = 'ChipIntel_STM32F103_' + stamp + '.html';
+  document.body.appendChild(a2); a2.click(); setTimeout(function(){ URL.revokeObjectURL(a2.href); a2.remove(); }, 300);
+  toast('HTML 报告已导出');
+}
+
+/* 模块5：证据链弹窗 */
+var V5 = {
+  '产品定位': { refs:'主频/内核/Flash', conf:'0.80', src:'官网+Datasheet+电商',
+    layers:['数据：72MHz / Cortex-M3 / 64KB — 3源一致','发现：GD32 108MHz / CH32 144MHz，外设少于 ST','推论：以外设完整性和长期稳定性取胜','建议：主打"频率翻倍+外设完整"差异化'] },
+  '价格策略': { refs:'品牌报价', conf:'0.38', src:'立创+得捷+媒体',
+    layers:['数据：立创¥8.50 / 得捷¥9.20 / 媒体¥8.80 — ⚠3源冲突','发现：国产替代价差40-45%','推论：品牌溢价来自信任与供货保障','建议：以"同规格省40%+长期供货"话术切入'] },
+  '渠道策略': { refs:'代理列表/价格对比', conf:'0.48', src:'官网+新闻',
+    layers:['数据：授权代理20+ / 价差20%','发现：国产依赖第三方电商，缺全球代理网络','推论：渠道壁垒=供应链覆盖+本地化支持','建议：电商直营+重点区域代理'] },
+  '传播话术': { refs:'关键词频次/话术提取', conf:'0.55', src:'官网+媒体',
+    layers:['数据：robust 约80+次 / ecosystem 64次','发现：国产话术聚焦兼容/性价比/自主','推论：ST面向"风险厌恶型"客户','建议：组合"性价比+兼容+供应链安全"叙事'] },
+  '技术参数': { refs:'完整参数对比', conf:'0.72', src:'DS+官网+电商',
+    layers:['数据：72MHz / 64KB / 7通信接口 — 3源一致','发现：频率不占优但外设完整','推论：外设丰富度是工程竞争力核心','建议：突出外设完整度对标'] },
+  '目标客户': { refs:'应用案例/论坛讨论', conf:'0.30', src:'官网（仅1源）',
+    layers:['数据：12个应用案例','发现：论坛用户多来自工控，关注"十年供货承诺"','推论：客户选择逻辑是"风险最小化"','建议：切入中小企业和初创，主打"性能足够+成本更优"'] }
+};
+function v5Evidence(dim){
+  var d = V5[dim];
+  if (!d){ toast('未找到 ' + dim + ' 的证据链'); return; }
+  var names = ['① 数据','② 发现','③ 推论','④ 建议'];
+  var html = '<p style="font-size:.78rem;color:var(--muted)">引用数据点：<b>' + d.refs + '</b> · 置信度 <b>' + d.conf + '</b> · 来源：' + d.src + '</p>' +
+    '<div class="chain">' + d.layers.map(function(l, i){
+      return '<div class="lv"><b>' + names[i] + '</b><br>' + l + '</div>';
+    }).join('') + '</div>' +
+    '<p style="font-size:.7rem;color:var(--muted);margin-top:.6rem">全部数据点均可追溯至原始来源 URL（采集时间 2026-08-13 18:35-18:40）· 溯源率100%</p>';
+  openModal('证据链 — ' + dim, html);
+}
+
+/* 模块5：完整性校验 */
+function v5Integrity(){
+  var box = document.getElementById('v5-integrity');
+  if (!box) return;
+  var steps = ['提取 24 条结论的引用数据…','在数据包中检索 34 个数据点…','比对引用值与原始来源…','检测幻觉引用与内部矛盾…'];
+  box.innerHTML = '<div style="font-size:.78rem;color:var(--accent2)">⟳ ' + steps[0] + '</div>';
+  var i = 1;
+  var timer = setInterval(function(){
+    if (i < steps.length){
+      box.innerHTML = '<div style="font-size:.78rem;color:var(--accent2)">⟳ ' + steps[i] + '</div>';
+      i++;
+    } else {
+      clearInterval(timer);
+      box.innerHTML = '<div style="font-size:.8rem"><span style="color:var(--success);font-weight:700">✓ 校验通过率 88%（21/24）</span> · 3 条已修正/标注 · 无幻觉引用</div>';
+      toast('完整性校验完成：通过率 88%');
+    }
+  }, 650);
+}
+</script>
+
+<button id="backtop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+<div id="prd-modal"><div class="box"><h4><span id="prd-modal-title">证据链</span><button class="close" onclick="closeModal()" aria-label="关闭">✕</button></h4><div id="prd-modal-body"></div></div></div>
+
+<script>
+/* ===== 逐项执行补充：图表证据 + 芯片级下钻 ===== */
+var CHART_EVIDENCE = {
+  1:{ t:'竞品定位散点图', d:'数据：STM32F103 ¥8.5/72MHz · GD32F103 ¥5.2/108MHz · CH32F103 ¥4.8/144MHz · AT32F403A ¥6.8/240MHz',
+     s:'来源：立创[电商★4] + ST官网[官网★5] + Datasheet[★5]', c:'置信度 0.80 · 3源一致',
+     l:['数据：价格与技术参数来自电商报价+Datasheet，3源交叉验证','发现：国产竞品集中在"高性能+低价格"区域，价差40-45%','推论：STM32F103靠品牌溢价+生态，非参数领先','建议：国产替代话术主打"同规格省40%+长期供货"'] },
+  2:{ t:'价格对比柱状图', d:'数据：STM32F103 ¥8.50（立创）/¥9.20（得捷）/¥8.80（媒体）· 国产竞品 ¥4.8-6.8',
+     s:'来源：立创 + 得捷 + 行业媒体', c:'置信度 0.38（3源冲突，已保留全部值）',
+     l:['数据：3个来源价格不一致，Agent保留全部值','发现：国产替代价差40-45%，价格带清晰','推论：品牌溢价来自信任与供货保障','建议：以"同规格省40%+长期供货承诺"切入'] },
+  3:{ t:'渠道能力雷达图', d:'数据：代理覆盖90 / 价格管控70 / 供货稳定85 / 技术支持80 / 生态丰富95（STM32）',
+     s:'来源：官网+电商+论坛 [多源]', c:'置信度 0.55 · 综合评估',
+     l:['数据：官网渠道页授权代理20+，电商在售覆盖广','发现：国产竞品主要依赖第三方电商，缺全球代理','推论：渠道壁垒=供应链覆盖+本地化技术支持','建议：电商直营+重点区域代理先行'] },
+  4:{ t:'数据覆盖热力图', d:'数据：6维度×6来源的置信度矩阵（高9/中14/低8/不足3）',
+     s:'来源：采集+校验阶段全部数据点', c:'中高置信度占比68%',
+     l:['数据：技术参数/产品定位维度3源一致，置信度0.80','发现：传播话术与目标客户维度覆盖偏低（0.30-0.55）','推论：覆盖低的维度结论仅供参考','建议：对低置信度数据点补充采集（已建议）'] },
+  5:{ t:'置信度分布图', d:'数据：高≥0.8 共9个 · 中0.5-0.79 共14个 · 低0.3-0.49 共8个 · 不足3个',
+     s:'来源：校验阶段置信度评分', c:'共34个数据点 · 中高占比68%',
+     l:['数据：各数据点按 来源权重×新鲜度×交叉验证 计算','发现：低置信度集中在价格（冲突）与目标客户（单源）','推论：数据质量整体可靠，个别维度需补强','建议：低置信度数据点标注"建议补充验证"'] },
+  6:{ t:'传播话术对比矩阵', d:'数据：STM32 Robust/Ecosystem/Long-term · 国产 性价比/兼容/自主',
+     s:'来源：各品牌官网关键词分析 [官网] + 行业媒体报道 [媒体]', c:'置信度 0.55',
+     l:['数据：官网关键词频次统计（robust约80+次，已降级标注）','发现：国产话术聚焦"兼容、性价比、自主"','推论：STM32面向"风险厌恶型"客户，话术降低决策风险','建议：国产组合"性价比+兼容+供应链安全"叙事'] }
+};
+function v4ChartEvidence(n){
+  var e = CHART_EVIDENCE[n];
+  if (!e){ toast('未找到图表' + n + '的证据'); return; }
+  var names = ['① 数据','② 发现','③ 推论','④ 建议'];
+  var html = '<p style="font-size:.78rem;color:var(--muted)">' + e.d + '</p>' +
+    '<p style="font-size:.78rem;color:var(--muted)">' + e.s + ' · ' + e.c + '</p>' +
+    '<div class="chain">' + e.l.map(function(x, i){ return '<div class="lv"><b>' + names[i] + '</b><br>' + x + '</div>'; }).join('') + '</div>' +
+    '<p style="font-size:.7rem;color:var(--muted);margin-top:.6rem">数据点均可追溯至原始来源 URL（采集时间 2026-08-13 18:35-18:40）</p>';
+  openModal('图表' + n + '证据链 — ' + e.t, html);
+}
+function openChipDrilldown(){
+  var rows = [
+    ['小米','Redmi Buds 5','TWS耳机','拆解报告 + BQB认证','高（价格驱动）'],
+    ['OPPO','Enco Air3','TWS耳机','拆解报告 + FCC认证','中（多供应商）'],
+    ['漫步者','X3 Lite','TWS耳机','BQB认证','中（多供应商）'],
+    ['QCY','T13','TWS耳机','拆解报告 + 电商','高（无品牌忠诚）'],
+    ['声阔','Liberty Air 2','TWS耳机','BQB认证','低（深度合作）']
+  ];
+  var html = '<p style="font-size:.78rem;color:var(--muted)">BT8912F（杰理 TWS 主控）被以下品牌产品使用 —— 公司级客户图谱的下钻视图。</p>' +
+    '<div class="tbl-wrap"><table style="font-size:.78rem"><tr><th>品牌</th><th>产品型号</th><th>类型</th><th>证据来源</th><th>替代机会</th></tr>' +
+    rows.map(function(r){ return '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + r[3] + '</td><td>' + r[4] + '</td></tr>'; }).join('') +
+    '</table></div>' +
+    '<p style="font-size:.78rem;color:var(--muted);margin-top:.5rem"><b>销售线索提示：</b>QCY/小米 Redmi 属"高替代机会"，易兆微可提供 Pin 兼容 + 更低成本的 YC11XX 送样测试。</p>' +
+    '<p style="font-size:.7rem;color:var(--muted);margin-top:.4rem">数据来源：拆解报告（我爱音频网）+ BQB/FCC 认证库 + 电商在售（演示数据）。</p>';
+  openModal('芯片级客户情报 — BT8912F', html);
+}
+</script>
+</body>
+</html>

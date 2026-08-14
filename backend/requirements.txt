@@ -1,0 +1,12 @@
+﻿# 产品后端依赖（PRD 11 节）
+# 核心算法模块为纯标准库；以下为 API/真实采集/LLM 可选依赖
+fastapi>=0.110
+uvicorn>=0.29
+pydantic>=2.6
+# 真实数据采集（可选）
+playwright>=1.40
+beautifulsoup4>=4.12
+# 真实 LLM 调用（可选）
+httpx>=0.27
+# Agent 编排（可选，PRD 建议 LangGraph）
+langgraph>=0.1

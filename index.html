@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChipIntel Agent — AI蓝牙芯片竞品情报Agent v3.1</title>
+<meta name="description" content="AI蓝牙芯片竞品情报Agent：双模式闭环（芯片级+公司级），采集→校验→分析→报告→溯源，证据链可追溯。">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230f4c75'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-family='sans-serif'>◈</text></svg>">
+</head>
+<body>
+
+<!-- ==================== 顶栏 ==================== -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-logo">◈</span>
+      <span>ChipIntel Agent</span>
+      <span class="brand-ver">v3.1 双模式</span>
+    </div>
+    <nav class="main-nav" id="mainNav" aria-label="主导航">
+      <button data-view="home" class="active"><span class="step-num">◉</span>首页</button>
+      <button data-view="collect"><span class="step-num">1</span>采集</button>
+      <button data-view="validate"><span class="step-num">2</span>校验</button>
+      <button data-view="analyze"><span class="step-num">3</span>分析</button>
+      <button data-view="report"><span class="step-num">4</span>报告</button>
+      <button data-view="trace"><span class="step-num">5</span>溯源</button>
+    </nav>
+    <div class="topbar-right">
+      <div class="mode-switch" id="modeSwitch" role="tablist" aria-label="分析模式">
+        <button class="active" data-mode="chip">芯片级</button>
+        <button data-mode="company">公司级</button>
+      </div>
+      <button class="icon-btn" id="themeToggle" title="切换深色/浅色主题" aria-label="切换主题">🌓</button>
+    </div>
+  </div>
+</header>
+
+<main id="app">
+  <!-- 首页 -->
+  <section class="view active" id="view-home"></section>
+  <!-- 采集 -->
+  <section class="view" id="view-collect"></section>
+  <!-- 校验 -->
+  <section class="view" id="view-validate"></section>
+  <!-- 分析 -->
+  <section class="view" id="view-analyze"></section>
+  <!-- 报告 -->
+  <section class="view" id="view-report"></section>
+  <!-- 溯源 -->
+  <section class="view" id="view-trace"></section>
+</main>
+
+<footer class="app-footer">
+  <div class="mono">ChipIntel Agent v3.1 · 双模式闭环 · 芯片级分析 + 公司级战略分析 · 客户图谱（拆解报告+BQB+FCC）· 替代机会分析</div>
+  <div style="margin-top:6px">背景公司：易兆微电子（杭州）· 赛道：蓝牙芯片（BLE/音频/数传）· 数据为演示数据集，非实时采集结果</div>
+</footer>
+
+<!-- 证据/来源弹窗 -->
+<div class="modal-backdrop" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3><span id="modalIcon">🔎</span><span id="modalTitle">来源详情</span>
+      <button class="close-x" id="modalClose" aria-label="关闭">✕</button></h3>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="_shared/js/echarts.min.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
